@@ -5,5 +5,11 @@
   "private": true,
   "workspaces": [
     "web"
-  ]
+  ],
+  "scripts": {
+    "prettify": "prettier --config ./prettier.config.js --write \"web/**/*.{js,jsx,ts,tsx}\""
+  },
+  "devDependencies": {
+    "prettier": "^2.5.1"
+  }
 }
