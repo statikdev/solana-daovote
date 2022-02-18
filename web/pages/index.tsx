@@ -1,5 +1,6 @@
 import type { NextPage } from 'next';
 import Head from 'next/head';
+import Image from 'next/image';
 import styles from '../styles/Home.module.css';
 import BN from 'bn.js';
 import { useCallback, useEffect, useState } from 'react';
@@ -14,29 +15,30 @@ import {
 } from '../constants/addresses';
 import { toU64Le } from '../utils';
 
+import { getNFTsForWallet, getNFTDataForMint } from '../services/NFT';
+
 const VoteProgramAddressPubKey = new PublicKey(VOTE_PROGRAM_ADDRESS);
 const MetaplexMetadataProgramAddressPubKey = new PublicKey(
   METAPLEX_METADATA_PROGRAM_ADDRESS
 );
 
-const creator_address = new PublicKey(
-  '7V5HgodrUb1jebRpFDsxTnYMKvEbMvbpTLn9kCinHPdd'
-);
+const NFT_CREATOR_ADDRESS = '7V5HgodrUb1jebRpFDsxTnYMKvEbMvbpTLn9kCinHPdd';
+const CreatorAddressPublicKey = new PublicKey(NFT_CREATOR_ADDRESS);
 
 const Home: NextPage = () => {
   const { connection } = useConnection();
   const { publicKey, sendTransaction } = useWallet();
 
+  const [availbleNFTs, setAvailableNFTs] = useState<any>([]);
   const [votes, setVotes] = useState<any>([]);
 
   useEffect(() => {
     async function retrieve() {
-      const creator = creator_address;
       const gpa = await connection.getProgramAccounts(
         VoteProgramAddressPubKey,
         {
           filters: [
-            { memcmp: { bytes: creator.toString(), offset: 32 } },
+            { memcmp: { bytes: NFT_CREATOR_ADDRESS, offset: 32 } },
             { dataSize: 116 },
           ],
         }
@@ -59,10 +61,19 @@ const Home: NextPage = () => {
         return { voter, creator, mint, vote, vote_option, time };
       });
 
+      if (publicKey) {
+        const nfts = await getNFTsForWallet(
+          connection,
+          new PublicKey(publicKey),
+          NFT_CREATOR_ADDRESS
+        );
+        setAvailableNFTs(nfts);
+      }
+
       setVotes(votes);
     }
     retrieve();
-  }, [connection]);
+  }, [connection, publicKey]);
 
   const castVote = useCallback(
     async (mintTokenId: PublicKey, voteId: number, vote: number) => {
@@ -92,7 +103,7 @@ const Home: NextPage = () => {
       )[0];
       const vote_auth_key = (
         await PublicKey.findProgramAddress(
-          [creator_address.toBuffer(), toU64Le(voteId)],
+          [CreatorAddressPublicKey.toBuffer(), toU64Le(voteId)],
           VoteProgramAddressPubKey
         )
       )[0];
@@ -206,6 +217,25 @@ const Home: NextPage = () => {
     );
   }
 
+  const nftsForCreatorInWallet =
+    (publicKey && (
+      <div style={{ paddingTop: '30px', paddingBottom: '30px' }}>
+        {availbleNFTs.map((nft: any) => {
+          return (
+            <span key={nft.mint}>
+              <Image
+                src={nft.storageData.image}
+                width="100px"
+                height="100px"
+                alt={nft.mint}
+              />
+            </span>
+          );
+        })}
+      </div>
+    )) ||
+    null;
+
   return (
     <div className={styles.container}>
       <Head>
@@ -215,6 +245,7 @@ const Home: NextPage = () => {
       </Head>
 
       <main className={styles.main}>
+        {nftsForCreatorInWallet}
         <div style={{ paddingTop: '30px', paddingBottom: '30px' }}>
           {Object.keys(votesById).map((voteId: any) => {
             const votes = votesById[voteId];
