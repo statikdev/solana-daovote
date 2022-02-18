@@ -15,6 +15,14 @@ const TOKEN_PROGRAM_ADDRESS = new PublicKey(
   'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA'
 );
 
+export async function getNFTDataForMint(
+  connection: Connection,
+  mintAddress: PublicKey
+) {
+  const onchainData = await Metadata.findByMint(connection, mintAddress);
+  return await retrieveStorageDataForUrl(onchainData.data.data.uri);
+}
+
 export async function retrieveStorageDataForUrl(uri: string) {
   const response = await fetch(uri);
   return await response.json();

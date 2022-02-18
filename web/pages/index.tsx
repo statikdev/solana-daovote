@@ -31,6 +31,7 @@ const Home: NextPage = () => {
 
   const [availbleNFTs, setAvailableNFTs] = useState<any>([]);
   const [votes, setVotes] = useState<any>([]);
+  const [nftImagesToShow, setNFTImagesToShow] = useState<any>([]);
 
   useEffect(() => {
     async function retrieve() {
@@ -175,6 +176,20 @@ const Home: NextPage = () => {
     [connection, publicKey]
   );
 
+  useEffect(() => {
+    async function retrieve() {
+      const nftData = await Promise.all(
+        votes.map(async (vote: any) => {
+          const data = await getNFTDataForMint(connection, vote.mint);
+          return { mint: vote.mint, data };
+        })
+      );
+
+      setNFTImagesToShow(nftData);
+    }
+    retrieve();
+  }, [connection, votes]);
+
   const votesById = votes.reduce((acc: any, vote: any) => {
     if (!acc[vote.vote]) {
       acc[vote.vote] = [];
@@ -186,8 +201,11 @@ const Home: NextPage = () => {
 
   function renderVotesForProposal(proposalId: any, votes: any) {
     const votesView = votes.map((d: any) => {
+      const mintImageUrl = nftImagesToShow.find(
+        (record: any) => record.mint === d.mint
+      )?.data?.image;
       return (
-        <div key={d.creator}>
+        <div key={d.time.toISOString()}>
           <b>Vote</b> <br />
           <u>By: </u>
           {d.voter}
@@ -197,6 +215,9 @@ const Home: NextPage = () => {
           <br />
           <u>Mint Token: </u>
           {d.mint}
+          {mintImageUrl && (
+            <img src={mintImageUrl} width="32px" height="32px" />
+          )}
           <br />
           <u>Vote Id: </u>
           {d.vote}
