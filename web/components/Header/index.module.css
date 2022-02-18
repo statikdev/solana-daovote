@@ -1,0 +1,13 @@
+.container {
+  padding: 30px;
+  width: 100%;
+  display: flex;
+}
+
+.container .walletButtons {
+  display: flex;
+  width: 100%;
+  gap: 2rem;
+  justify-content: flex-end;
+  align-items: center;
+}
