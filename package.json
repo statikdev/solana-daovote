@@ -7,6 +7,7 @@
     "web"
   ],
   "scripts": {
+    "dev": "cd web && yarn dev",
     "prettify": "prettier --config ./prettier.config.js --write \"web/**/*.{js,jsx,ts,tsx}\""
   },
   "devDependencies": {
