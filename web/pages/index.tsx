@@ -1,4 +1,3 @@
-import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
 import type { NextPage } from 'next';
 import Head from 'next/head';
 import styles from '../styles/Home.module.css';
@@ -9,29 +8,16 @@ import { useConnection, useWallet } from '@solana/wallet-adapter-react';
 import { Transaction, TransactionInstruction } from '@solana/web3.js';
 import { PublicKey } from '@solana/web3.js';
 
-export const METAPLEX_METADATA_PROGRAM_ADDRESS = new PublicKey(
-  'metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s'
+import {
+  METAPLEX_METADATA_PROGRAM_ADDRESS,
+  VOTE_PROGRAM_ADDRESS,
+} from '../constants/addresses';
+import { toU64Le } from '../utils';
+
+const VoteProgramAddressPubKey = new PublicKey(VOTE_PROGRAM_ADDRESS);
+const MetaplexMetadataProgramAddressPubKey = new PublicKey(
+  METAPLEX_METADATA_PROGRAM_ADDRESS
 );
-const PROGRAM_ID = new PublicKey(
-  '5fN4XFf4Q8zKEfLoLNsYdYCTsQ4V7FttTdCY3bcMWbcX'
-);
-
-const toU64Le = (n: number) => {
-  const a = [];
-  a.unshift(n & 255);
-
-  while (n >= 256) {
-    n = n >>> 8;
-    a.unshift(n & 255);
-  }
-
-  //backfill 0
-  for (let i = a.length; i < 8; i++) {
-    a.push(0);
-  }
-
-  return new Uint8Array(a);
-};
 
 const creator_address = new PublicKey(
   '7V5HgodrUb1jebRpFDsxTnYMKvEbMvbpTLn9kCinHPdd'
@@ -46,12 +32,15 @@ const Home: NextPage = () => {
   useEffect(() => {
     async function retrieve() {
       const creator = creator_address;
-      const gpa = await connection.getProgramAccounts(PROGRAM_ID, {
-        filters: [
-          { memcmp: { bytes: creator.toString(), offset: 32 } },
-          { dataSize: 116 },
-        ],
-      });
+      const gpa = await connection.getProgramAccounts(
+        VoteProgramAddressPubKey,
+        {
+          filters: [
+            { memcmp: { bytes: creator.toString(), offset: 32 } },
+            { dataSize: 116 },
+          ],
+        }
+      );
 
       const votes = gpa.map((e) => {
         const mint = new PublicKey(e.account.data.slice(0, 32)).toString(),
@@ -89,22 +78,22 @@ const Home: NextPage = () => {
         await PublicKey.findProgramAddress(
           [
             new Uint8Array([109, 101, 116, 97, 100, 97, 116, 97]),
-            METAPLEX_METADATA_PROGRAM_ADDRESS.toBuffer(),
+            MetaplexMetadataProgramAddressPubKey.toBuffer(),
             mintTokenId.toBuffer(),
           ],
-          METAPLEX_METADATA_PROGRAM_ADDRESS
+          MetaplexMetadataProgramAddressPubKey
         )
       )[0];
       const auth_key = (
         await PublicKey.findProgramAddress(
           [mintTokenId.toBuffer(), toU64Le(voteId)],
-          PROGRAM_ID
+          VoteProgramAddressPubKey
         )
       )[0];
       const vote_auth_key = (
         await PublicKey.findProgramAddress(
           [creator_address.toBuffer(), toU64Le(voteId)],
-          PROGRAM_ID
+          VoteProgramAddressPubKey
         )
       )[0];
       const sys_key = new PublicKey('11111111111111111111111111111111');
@@ -135,7 +124,7 @@ const Home: NextPage = () => {
           account_5,
           account_6,
         ],
-        programId: PROGRAM_ID,
+        programId: VoteProgramAddressPubKey,
         data: Buffer.from(
           new Uint8Array(
             [1]
