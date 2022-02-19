@@ -1,29 +1,21 @@
 import type { NextPage } from 'next';
 import Head from 'next/head';
 import Image from 'next/image';
+import Link from 'next/link';
 import styles from '../styles/Home.module.css';
 import BN from 'bn.js';
-import { useCallback, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { useConnection, useWallet } from '@solana/wallet-adapter-react';
-import { Transaction, TransactionInstruction } from '@solana/web3.js';
 import { PublicKey } from '@solana/web3.js';
 
-import {
-  METAPLEX_METADATA_PROGRAM_ADDRESS,
-  VOTE_PROGRAM_ADDRESS,
-} from '../constants/addresses';
-import { toU64Le } from '../utils';
+import { VOTE_PROGRAM_ADDRESS } from '../constants/addresses';
 
 import { getNFTsForWallet, getNFTDataForMint } from '../services/NFT';
 
 const VoteProgramAddressPubKey = new PublicKey(VOTE_PROGRAM_ADDRESS);
-const MetaplexMetadataProgramAddressPubKey = new PublicKey(
-  METAPLEX_METADATA_PROGRAM_ADDRESS
-);
 
 const NFT_CREATOR_ADDRESS = '7V5HgodrUb1jebRpFDsxTnYMKvEbMvbpTLn9kCinHPdd';
-const CreatorAddressPublicKey = new PublicKey(NFT_CREATOR_ADDRESS);
 
 const Home: NextPage = () => {
   const { connection } = useConnection();
@@ -76,106 +68,6 @@ const Home: NextPage = () => {
     retrieve();
   }, [connection, publicKey]);
 
-  const castVote = useCallback(
-    async (mintTokenId: PublicKey, voteId: number, vote: number) => {
-      if (!publicKey) {
-        return;
-      }
-
-      const token_key = (await connection.getTokenLargestAccounts(mintTokenId))
-        .value[0].address;
-
-      console.log(token_key.toString());
-      const meta_key = (
-        await PublicKey.findProgramAddress(
-          [
-            new Uint8Array([109, 101, 116, 97, 100, 97, 116, 97]),
-            MetaplexMetadataProgramAddressPubKey.toBuffer(),
-            mintTokenId.toBuffer(),
-          ],
-          MetaplexMetadataProgramAddressPubKey
-        )
-      )[0];
-      const auth_key = (
-        await PublicKey.findProgramAddress(
-          [mintTokenId.toBuffer(), toU64Le(voteId)],
-          VoteProgramAddressPubKey
-        )
-      )[0];
-      const vote_auth_key = (
-        await PublicKey.findProgramAddress(
-          [CreatorAddressPublicKey.toBuffer(), toU64Le(voteId)],
-          VoteProgramAddressPubKey
-        )
-      )[0];
-      const sys_key = new PublicKey('11111111111111111111111111111111');
-
-      let account_0 = {
-          pubkey: publicKey,
-          isSigner: false,
-          isWritable: true,
-        },
-        account_1 = { pubkey: mintTokenId, isSigner: false, isWritable: false },
-        account_2 = { pubkey: token_key, isSigner: false, isWritable: false },
-        account_3 = { pubkey: meta_key, isSigner: false, isWritable: false },
-        account_4 = { pubkey: auth_key, isSigner: false, isWritable: true },
-        account_5 = { pubkey: sys_key, isSigner: false, isWritable: false },
-        account_6 = {
-          pubkey: vote_auth_key,
-          isSigner: false,
-          isWritable: false,
-        };
-
-      const instruction = new TransactionInstruction({
-        keys: [
-          account_0,
-          account_1,
-          account_2,
-          account_3,
-          account_4,
-          account_5,
-          account_6,
-        ],
-        programId: VoteProgramAddressPubKey,
-        data: Buffer.from(
-          new Uint8Array(
-            [1]
-              .concat(Array.from(toU64Le(voteId)))
-              .concat(Array.from(toU64Le(vote)))
-          )
-        ),
-      });
-
-      let transaction = new Transaction().add(instruction);
-
-      transaction.recentBlockhash = (
-        await connection.getRecentBlockhash()
-      ).blockhash;
-      transaction.feePayer = publicKey;
-
-      try {
-        const signature = await sendTransaction(transaction, connection, {
-          skipPreflight: true,
-        });
-
-        const result = await connection.confirmTransaction(
-          signature,
-          'confirmed'
-        );
-
-        console.log(result);
-      } catch (e: any) {
-        const logs = e?.logs;
-        let error = 'Unknown error occurred.';
-        console.log(e);
-        if (logs) {
-          error = logs[logs.length - 3].split(' ').splice(2).join(' ');
-        }
-      }
-    },
-    [connection, publicKey]
-  );
-
   useEffect(() => {
     async function retrieve() {
       const nftData = await Promise.all(
@@ -200,40 +92,34 @@ const Home: NextPage = () => {
   }, {});
 
   function renderVotesForProposal(proposalId: any, votes: any) {
-    const votesView = votes.map((d: any) => {
-      const mintImageUrl = nftImagesToShow.find(
-        (record: any) => record.mint === d.mint
-      )?.data?.image;
-      return (
-        <div key={d.time.toISOString()}>
-          <b>Vote</b> <br />
-          <u>By: </u>
-          {d.voter}
-          <br />
-          <u>NFT Authority: </u>
-          {d.creator}
-          <br />
-          <u>Mint Token: </u>
-          {d.mint}
-          {mintImageUrl && (
-            <img src={mintImageUrl} width="32px" height="32px" />
-          )}
-          <br />
-          <u>Vote Id: </u>
-          {d.vote}
-          <br />
-          <u>Vote: </u>
-          {d.vote_option}
-          <br />
-          {d.time.toISOString()}
-        </div>
-      );
-    });
+    const voteResultsCount = votes.reduce((acc: any, vote: any) => {
+      if (!acc[vote.vote_option]) {
+        acc[vote.vote_option] = {
+          option: vote.vote_option,
+          count: 0,
+        };
+      }
+
+      acc[vote.vote_option].count++;
+
+      return acc;
+    }, {});
 
     return (
       <>
-        <h3>Proposal {proposalId}</h3>
-        <div>{votesView}</div>
+        <Link href={`/proposal/${proposalId}`} passHref>
+          <h3>Proposal {proposalId}</h3>
+        </Link>
+        <div>
+          {Object.keys(voteResultsCount).map((voteOption: any) => {
+            const voteResultForOption = voteResultsCount[voteOption];
+            return (
+              <span key={voteOption}>
+                <b>Option: {voteOption}</b> - Total: {voteResultForOption.count}
+              </span>
+            );
+          })}
+        </div>
       </>
     );
   }
@@ -273,31 +159,6 @@ const Home: NextPage = () => {
 
             return renderVotesForProposal(voteId, votes);
           })}
-        </div>
-
-        <div>
-          <button
-            onClick={() => {
-              castVote(
-                new PublicKey('GUEKjHs9sVT4q5xiJ8GupquhgKWs5XHMHcPVkbbAiEwu'),
-                2,
-                1
-              );
-            }}
-          >
-            VOTE YES
-          </button>
-          <button
-            onClick={() => {
-              castVote(
-                new PublicKey('GUEKjHs9sVT4q5xiJ8GupquhgKWs5XHMHcPVkbbAiEwu'),
-                2,
-                0
-              );
-            }}
-          >
-            VOTE NO
-          </button>
         </div>
       </main>
     </div>
