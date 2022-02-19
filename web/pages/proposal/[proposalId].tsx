@@ -1,6 +1,7 @@
 import type { NextPage } from 'next';
 import Head from 'next/head';
 import Image from 'next/image';
+import Base58 from 'bs58';
 import styles from '../../styles/Home.module.css';
 import BN from 'bn.js';
 import { useCallback, useEffect, useState } from 'react';
@@ -44,33 +45,33 @@ const Home: NextPage = () => {
         {
           filters: [
             { memcmp: { bytes: NFT_CREATOR_ADDRESS, offset: 32 } },
+            {
+              memcmp: {
+                bytes: Base58.encode(toU64Le(+proposalId!)),
+                offset: 96,
+              },
+            },
             { dataSize: 116 },
           ],
         }
       );
 
-      const votes = gpa
-        .map((e) => {
-          const mint = new PublicKey(e.account.data.slice(0, 32)).toString(),
-            creator = new PublicKey(e.account.data.slice(32, 64)).toString(),
-            voter = new PublicKey(e.account.data.slice(64, 96)).toString(),
-            vote = new BN(e.account.data.slice(96, 104), 10, 'le').toString(),
-            time = new Date(
-              new BN(
-                e.account.data[104] +
-                  (e.account.data[105] << 8) +
-                  (e.account.data[106] << 16) +
-                  (e.account.data[107] << 24)
-              ).toNumber() * 1000
-            ),
-            vote_option = new BN(
-              e.account.data.slice(108),
-              10,
-              'le'
-            ).toString();
-          return { voter, creator, mint, vote, vote_option, time };
-        })
-        .filter((proposal) => proposal.vote === proposalId);
+      const votes = gpa.map((e) => {
+        const mint = new PublicKey(e.account.data.slice(0, 32)).toString(),
+          creator = new PublicKey(e.account.data.slice(32, 64)).toString(),
+          voter = new PublicKey(e.account.data.slice(64, 96)).toString(),
+          vote = new BN(e.account.data.slice(96, 104), 10, 'le').toString(),
+          time = new Date(
+            new BN(
+              e.account.data[104] +
+                (e.account.data[105] << 8) +
+                (e.account.data[106] << 16) +
+                (e.account.data[107] << 24)
+            ).toNumber() * 1000
+          ),
+          vote_option = new BN(e.account.data.slice(108), 10, 'le').toString();
+        return { voter, creator, mint, vote, vote_option, time };
+      });
 
       if (publicKey) {
         const nfts = await getNFTsForWallet(
