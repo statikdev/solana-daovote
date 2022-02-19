@@ -24,8 +24,14 @@ export async function getNFTDataForMint(
 }
 
 export async function retrieveStorageDataForUrl(uri: string) {
-  const response = await fetch(uri);
-  return await response.json();
+  try {
+    const response = await fetch(uri);
+    return await response.json();
+  } catch (e) {
+    console.error(e);
+  }
+
+  return null;
 }
 
 export async function getNFTsForWallet(

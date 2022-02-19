@@ -212,9 +212,9 @@ const Home: NextPage = () => {
 
   function renderVotesForProposal(proposalId: any, votes: any) {
     const votesView = votes.map((d: any) => {
-      const mintImageUrl = nftImagesToShow.find(
-        (record: any) => record.mint === d.mint
-      )?.data?.image;
+      const mintImageUrl = nftImagesToShow
+        .filter((mint: any) => !!mint.data)
+        .find((record: any) => record.mint === d.mint)?.data?.image;
       return (
         <div key={d.time.toISOString()}>
           <b>Vote</b> <br />
