@@ -31,6 +31,8 @@ const Home: NextPage = () => {
   const { publicKey, sendTransaction } = useWallet();
   const isConnected = !!publicKey;
 
+  const [isVotingActionInProgress, setVotingActionInProgress] =
+    useState<boolean>(false);
   const [votes, setVotes] = useState<any>([]);
   const [nftImagesToShow, setNFTImagesToShow] = useState<any>([]);
   const [selectedNFTMintAddress, setSelectedNFTMintAddress] = useState<
@@ -85,6 +87,8 @@ const Home: NextPage = () => {
       if (!publicKey) {
         return;
       }
+
+      setVotingActionInProgress(true);
 
       const token_key = (await connection.getTokenLargestAccounts(mintTokenId))
         .value[0].address;
@@ -166,10 +170,10 @@ const Home: NextPage = () => {
 
         const result = await connection.confirmTransaction(
           signature,
-          'confirmed'
+          'finalized'
         );
 
-        console.log(result);
+        setVotingActionInProgress(false);
       } catch (e: any) {
         const logs = e?.logs;
         let error = 'Unknown error occurred.';
@@ -177,6 +181,7 @@ const Home: NextPage = () => {
         if (logs) {
           error = logs[logs.length - 3].split(' ').splice(2).join(' ');
         }
+        setVotingActionInProgress(false);
       }
     },
     [connection, publicKey]
@@ -266,6 +271,8 @@ const Home: NextPage = () => {
     return <span>Invalid Proposal Id</span>;
   }
 
+  const disableVoting = isVotingActionInProgress || !selectedNFTMintAddress;
+
   return (
     <div className={styles.container}>
       <Head>
@@ -276,20 +283,15 @@ const Home: NextPage = () => {
 
       <main className={styles.main}>
         {nftsForCreatorInWallet}
-        <div style={{ paddingTop: '30px', paddingBottom: '30px' }}>
-          {Object.keys(votesById).map((voteId: any) => {
-            const votes = votesById[voteId];
-
-            return renderVotesForProposal(voteId, votes);
-          })}
-        </div>
-
         {(isConnected && (
-          <div>
+          <div style={{ paddingTop: '15px' }}>
+            <span>
+              {isVotingActionInProgress ? 'Voting...' : 'Select Option: '}
+            </span>
             <button
-              disabled={!selectedNFTMintAddress}
+              disabled={disableVoting}
               onClick={() => {
-                if (!selectedNFTMintAddress) {
+                if (disableVoting) {
                   return;
                 }
                 castVote(new PublicKey(selectedNFTMintAddress), +proposalId, 1);
@@ -298,9 +300,9 @@ const Home: NextPage = () => {
               VOTE YES
             </button>
             <button
-              disabled={!selectedNFTMintAddress}
+              disabled={disableVoting}
               onClick={() => {
-                if (!selectedNFTMintAddress) {
+                if (disableVoting) {
                   return;
                 }
                 castVote(new PublicKey(selectedNFTMintAddress), +proposalId, 0);
@@ -311,6 +313,14 @@ const Home: NextPage = () => {
           </div>
         )) ||
           null}
+
+        <div style={{ paddingTop: '30px', paddingBottom: '30px' }}>
+          {Object.keys(votesById).map((voteId: any) => {
+            const votes = votesById[voteId];
+
+            return renderVotesForProposal(voteId, votes);
+          })}
+        </div>
       </main>
     </div>
   );
