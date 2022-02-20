@@ -126,19 +126,38 @@ const Home: NextPage = () => {
 
   const nftsForCreatorInWallet =
     (publicKey && (
-      <div style={{ paddingTop: '30px', paddingBottom: '30px' }}>
-        {availbleNFTs.map((nft: any) => {
-          return (
-            <span key={nft.mint}>
-              <Image
-                src={nft.storageData.image}
-                width="100px"
-                height="100px"
-                alt={nft.mint}
-              />
-            </span>
-          );
-        })}
+      <div className="container">
+        <div className="row">
+          {availbleNFTs.map((nft: any) => {
+            return (
+              <div className="col" key={nft.mint}>
+                <div className="card">
+                  <div className="card-body">
+                    <h5 className="card-title">{nft.storageData.name}</h5>
+                    <Image
+                      src={nft.storageData.image}
+                      width="100px"
+                      height="100px"
+                      alt={nft.mint}
+                    />
+                    <div className="row">
+                      <div className="col" key={nft.mint}>
+                        <a href="#" className="btn btn-primary">
+                          Yes
+                        </a>
+                      </div>
+                      <div className="col" key={nft.mint}>
+                        <a href="#" className="btn btn-primary">
+                          No
+                        </a>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
       </div>
     )) ||
     null;

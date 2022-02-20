@@ -17,7 +17,8 @@ import { clusterApiUrl } from '@solana/web3.js';
 import { AppProps } from 'next/app';
 import { FC, useMemo } from 'react';
 import Layout from '../components/Layout';
-
+import 'bootstrap/dist/css/bootstrap.css';
+import Head from "next/head";
 // Use require instead of import since order matters
 require('@solana/wallet-adapter-react-ui/styles.css');
 require('../styles/globals.css');
@@ -46,15 +47,20 @@ const App: FC<AppProps> = ({ Component, pageProps }) => {
   );
 
   return (
-    <ConnectionProvider endpoint={endpoint}>
-      <WalletProvider wallets={wallets} autoConnect>
-        <WalletModalProvider>
-          <Layout>
-            <Component {...pageProps} />
-          </Layout>
-        </WalletModalProvider>
-      </WalletProvider>
-    </ConnectionProvider>
+    <>
+      <Head>
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+      </Head>
+      <ConnectionProvider endpoint={endpoint}>
+        <WalletProvider wallets={wallets} autoConnect>
+          <WalletModalProvider>
+            <Layout>
+              <Component {...pageProps} />
+            </Layout>
+          </WalletModalProvider>
+        </WalletProvider>
+      </ConnectionProvider>
+    </>
   );
 };
 
