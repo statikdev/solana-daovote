@@ -1,6 +1,5 @@
 import type { NextPage } from 'next';
 import Head from 'next/head';
-import Image from 'next/image';
 import Base58 from 'bs58';
 import styles from '../../styles/Home.module.css';
 import BN from 'bn.js';
@@ -10,13 +9,14 @@ import { useConnection, useWallet } from '@solana/wallet-adapter-react';
 import { Transaction, TransactionInstruction } from '@solana/web3.js';
 import { PublicKey } from '@solana/web3.js';
 
+import NFTSelection from '../../components/NFTSelection';
 import {
   METAPLEX_METADATA_PROGRAM_ADDRESS,
   VOTE_PROGRAM_ADDRESS,
 } from '../../constants/addresses';
 import { toU64Le } from '../../utils';
 
-import { getNFTsForWallet, getNFTDataForMint } from '../../services/NFT';
+import { getNFTDataForMint } from '../../services/NFT';
 
 const VoteProgramAddressPubKey = new PublicKey(VOTE_PROGRAM_ADDRESS);
 const MetaplexMetadataProgramAddressPubKey = new PublicKey(
@@ -31,7 +31,6 @@ const Home: NextPage = () => {
   const { publicKey, sendTransaction } = useWallet();
   const isConnected = !!publicKey;
 
-  const [availbleNFTs, setAvailableNFTs] = useState<any>([]);
   const [votes, setVotes] = useState<any>([]);
   const [nftImagesToShow, setNFTImagesToShow] = useState<any>([]);
 
@@ -72,15 +71,6 @@ const Home: NextPage = () => {
           vote_option = new BN(e.account.data.slice(108), 10, 'le').toString();
         return { voter, creator, mint, vote, vote_option, time };
       });
-
-      if (publicKey) {
-        const nfts = await getNFTsForWallet(
-          connection,
-          new PublicKey(publicKey),
-          NFT_CREATOR_ADDRESS
-        );
-        setAvailableNFTs(nfts);
-      }
 
       setVotes(votes);
     }
@@ -248,29 +238,19 @@ const Home: NextPage = () => {
       </>
     );
   }
+  const nftsForCreatorInWallet =
+    (publicKey && (
+      <NFTSelection
+        connection={connection}
+        nftCreatorAddress={NFT_CREATOR_ADDRESS}
+        walletAddress={publicKey.toString()}
+      />
+    )) ||
+    null;
 
   if (!proposalId) {
     return <span>Invalid Proposal Id</span>;
   }
-
-  const nftsForCreatorInWallet =
-    (publicKey && (
-      <div style={{ paddingTop: '30px', paddingBottom: '30px' }}>
-        {availbleNFTs.map((nft: any) => {
-          return (
-            <span key={nft.mint}>
-              <Image
-                src={nft.storageData.image}
-                width="100px"
-                height="100px"
-                alt={nft.mint}
-              />
-            </span>
-          );
-        })}
-      </div>
-    )) ||
-    null;
 
   return (
     <div className={styles.container}>
