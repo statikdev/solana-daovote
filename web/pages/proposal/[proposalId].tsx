@@ -205,6 +205,10 @@ const Home: NextPage = () => {
     return acc;
   }, {});
 
+  const unavailableNFTs = votes.map((vote: any) => {
+    return vote.mint;
+  });
+
   function renderVotesForProposal(proposalId: any, votes: any) {
     const votesView = votes.map((d: any) => {
       const mintImageUrl = nftImagesToShow
@@ -252,6 +256,7 @@ const Home: NextPage = () => {
           setSelectedNFTMintAddress(newSelectedNFTMintAddress)
         }
         selectedNFTMintAddress={selectedNFTMintAddress}
+        unavailableNFTs={unavailableNFTs}
         walletAddress={publicKey.toString()}
       />
     )) ||

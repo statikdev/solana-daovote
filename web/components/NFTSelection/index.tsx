@@ -16,12 +16,14 @@ export default function NFTSelection({
   nftCreatorAddress,
   onSelectAction,
   selectedNFTMintAddress,
+  unavailableNFTs,
   walletAddress,
 }: {
   connection: Connection;
   nftCreatorAddress: string;
   onSelectAction: (nftMintAddress: string) => void;
   selectedNFTMintAddress?: string;
+  unavailableNFTs: Array<string>;
   walletAddress: string;
 }) {
   const [nftsWithMetadata, setNFTsWithMetadata] = useState<NFTWithMetadata[]>(
@@ -55,13 +57,24 @@ export default function NFTSelection({
             selectedNFTMintAddress === record.mintAddress
               ? '#000'
               : 'transparent';
+
+          const isAvailableForSelection = !unavailableNFTs.some(
+            (nft: any) => nft === record.mintAddress
+          );
+
           return (
             <span
               key={record.mintAddress}
-              onClick={() => onSelectAction(record.mintAddress)}
+              onClick={() => {
+                if (!isAvailableForSelection) {
+                  return;
+                }
+                onSelectAction(record.mintAddress);
+              }}
               style={{
                 borderBottom: `5px solid ${borderColor}`,
-                cursor: 'pointer',
+                cursor: isAvailableForSelection ? 'pointer' : 'not-allowed',
+                opacity: isAvailableForSelection ? 1 : 0.5,
               }}
             >
               <Image
