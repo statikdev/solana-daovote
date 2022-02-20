@@ -33,6 +33,9 @@ const Home: NextPage = () => {
 
   const [votes, setVotes] = useState<any>([]);
   const [nftImagesToShow, setNFTImagesToShow] = useState<any>([]);
+  const [selectedNFTMintAddress, setSelectedNFTMintAddress] = useState<
+    string | undefined
+  >(undefined);
 
   const router = useRouter();
   const { proposalId } = router.query;
@@ -159,6 +162,8 @@ const Home: NextPage = () => {
           skipPreflight: true,
         });
 
+        console.log('Tx Id: ', signature);
+
         const result = await connection.confirmTransaction(
           signature,
           'confirmed'
@@ -243,6 +248,10 @@ const Home: NextPage = () => {
       <NFTSelection
         connection={connection}
         nftCreatorAddress={NFT_CREATOR_ADDRESS}
+        onSelectAction={(newSelectedNFTMintAddress) =>
+          setSelectedNFTMintAddress(newSelectedNFTMintAddress)
+        }
+        selectedNFTMintAddress={selectedNFTMintAddress}
         walletAddress={publicKey.toString()}
       />
     )) ||
@@ -273,23 +282,23 @@ const Home: NextPage = () => {
         {(isConnected && (
           <div>
             <button
+              disabled={!selectedNFTMintAddress}
               onClick={() => {
-                castVote(
-                  new PublicKey('GUEKjHs9sVT4q5xiJ8GupquhgKWs5XHMHcPVkbbAiEwu'),
-                  +proposalId,
-                  1
-                );
+                if (!selectedNFTMintAddress) {
+                  return;
+                }
+                castVote(new PublicKey(selectedNFTMintAddress), +proposalId, 1);
               }}
             >
               VOTE YES
             </button>
             <button
+              disabled={!selectedNFTMintAddress}
               onClick={() => {
-                castVote(
-                  new PublicKey('GUEKjHs9sVT4q5xiJ8GupquhgKWs5XHMHcPVkbbAiEwu'),
-                  +proposalId,
-                  0
-                );
+                if (!selectedNFTMintAddress) {
+                  return;
+                }
+                castVote(new PublicKey(selectedNFTMintAddress), +proposalId, 0);
               }}
             >
               VOTE NO

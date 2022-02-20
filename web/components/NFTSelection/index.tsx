@@ -14,10 +14,14 @@ type NFTWithMetadata = {
 export default function NFTSelection({
   connection,
   nftCreatorAddress,
+  onSelectAction,
+  selectedNFTMintAddress,
   walletAddress,
 }: {
   connection: Connection;
   nftCreatorAddress: string;
+  onSelectAction: (nftMintAddress: string) => void;
+  selectedNFTMintAddress?: string;
   walletAddress: string;
 }) {
   const [nftsWithMetadata, setNFTsWithMetadata] = useState<NFTWithMetadata[]>(
@@ -47,8 +51,19 @@ export default function NFTSelection({
     <>
       <div>
         {nftsWithMetadata.map((record: NFTWithMetadata) => {
+          const borderColor =
+            selectedNFTMintAddress === record.mintAddress
+              ? '#000'
+              : 'transparent';
           return (
-            <span key={record.mintAddress}>
+            <span
+              key={record.mintAddress}
+              onClick={() => onSelectAction(record.mintAddress)}
+              style={{
+                borderBottom: `5px solid ${borderColor}`,
+                cursor: 'pointer',
+              }}
+            >
               <Image
                 src={record.imageUrl}
                 width="100px"
