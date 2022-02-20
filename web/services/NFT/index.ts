@@ -1,19 +1,14 @@
 import { Connection, PublicKey } from '@solana/web3.js';
 import { Metadata } from '@metaplex-foundation/mpl-token-metadata';
-
+import { TOKEN_PROGRAM_ID } from '@solana/spl-token';
 export async function getMetadataForMint(
   connection: Connection,
   tokenAddress: PublicKey
 ) {
   const nftPDA = await Metadata.getPDA(tokenAddress);
-
   const metadata = await Metadata.load(connection, nftPDA);
   return metadata;
 }
-
-const TOKEN_PROGRAM_ADDRESS = new PublicKey(
-  'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA'
-);
 
 export async function getNFTDataForMint(
   connection: Connection,
@@ -42,14 +37,18 @@ export async function getNFTsForWallet(
   const response = await connection.getParsedTokenAccountsByOwner(
     walletAddress,
     {
-      programId: TOKEN_PROGRAM_ADDRESS,
+      programId: TOKEN_PROGRAM_ID,
     }
   );
+
+  console.log('responses', response);
 
   const mints = await Promise.all(
     response.value
       .filter(
-        (accInfo) => accInfo.account.data.parsed.info.tokenAmount.uiAmount !== 0
+        (accInfo) =>
+          accInfo.account.data.parsed.info.tokenAmount.uiAmount == 1 &&
+          accInfo.account.data.parsed.info.tokenAmount.decimals == 0
       )
       .map((accInfo) =>
         getMetadataForMint(connection, accInfo.account.data.parsed.info.mint)
