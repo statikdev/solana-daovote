@@ -17,17 +17,80 @@ const VoteProgramAddressPubKey = new PublicKey(VOTE_PROGRAM_ADDRESS);
 
 const NFT_CREATOR_ADDRESS = '7V5HgodrUb1jebRpFDsxTnYMKvEbMvbpTLn9kCinHPdd';
 
+type VoteOption = {
+  label: string;
+  value: number;
+  onchainValue: number;
+};
+
+type ProposalInfo = {
+  proposalId: number;
+  prompt: string;
+  description: string;
+  proposedBy: string;
+  proposedByNftMintAddress: string;
+  documentProposalUri: string;
+  totalVotesAvailable: number;
+  voteOptions: Array<VoteOption>;
+  proposalDate: string;
+};
+
+type Proposal = {
+  id: number;
+  info: ProposalInfo;
+  url: string;
+};
+
 const Home: NextPage = () => {
   const { connection } = useConnection();
   const { publicKey, sendTransaction } = useWallet();
 
   const [availbleNFTs, setAvailableNFTs] = useState<any>([]);
+  const [proposals, setProposals] = useState<any>([]);
   const [votes, setVotes] = useState<any>([]);
   const [nftImagesToShow, setNFTImagesToShow] = useState<any>([]);
 
   useEffect(() => {
     async function retrieve() {
-      const gpa = await connection.getProgramAccounts(
+      const proposalAccounts = await connection.getProgramAccounts(
+        VoteProgramAddressPubKey,
+        {
+          filters: [{ dataSize: 148 }],
+        }
+      );
+
+      const proposalsRetrieval = proposalAccounts.map(
+        async (programAccount) => {
+          const urlBytes = programAccount.account.data!.slice(0, 100);
+          const url = String.fromCharCode(
+            ...Array.from(urlBytes).filter((e) => e > 0)
+          );
+
+          const proposalId = new BN(
+            programAccount.account.data.slice(100, 108),
+            10,
+            'le'
+          ).toString();
+
+          let proposalInfo: ProposalInfo | null = null;
+          try {
+            const proposalInfoRequest = await fetch(url + '?type=json');
+            proposalInfo = JSON.parse(await proposalInfoRequest.text());
+          } catch (e) {}
+
+          return {
+            url,
+            id: proposalId,
+            info: proposalInfo,
+          };
+        }
+      );
+
+      const proposals = (await Promise.all(proposalsRetrieval)).filter(
+        (proposal) => !!proposal.info
+      );
+
+      const voteAccounts = await connection.getProgramAccounts(
         VoteProgramAddressPubKey,
         {
           filters: [
@@ -37,7 +100,7 @@ const Home: NextPage = () => {
         }
       );
 
-      const votes = gpa.map((e) => {
+      const votes = voteAccounts.map((e) => {
         const mint = new PublicKey(e.account.data.slice(0, 32)).toString(),
           creator = new PublicKey(e.account.data.slice(32, 64)).toString(),
           voter = new PublicKey(e.account.data.slice(64, 96)).toString(),
@@ -63,6 +126,7 @@ const Home: NextPage = () => {
         setAvailableNFTs(nfts);
       }
 
+      setProposals(proposals);
       setVotes(votes);
     }
     retrieve();
@@ -91,8 +155,8 @@ const Home: NextPage = () => {
     return acc;
   }, {});
 
-  function renderVotesForProposal(proposalId: any, votes: any) {
-    console.log('propose', proposalId, votes);
+  function renderVotesForProposal(proposal: Proposal, votes: any) {
+    console.log('propose', proposal.id, votes);
     const voteResultsCount = votes.reduce((acc: any, vote: any) => {
       if (!acc[vote.vote_option]) {
         acc[vote.vote_option] = {
@@ -106,14 +170,19 @@ const Home: NextPage = () => {
       return acc;
     }, {});
 
+    const proposalId = proposal.id;
+
     return (
       <div className="col-12">
         <div className="card mb-4 rounded-3 shadow-sm">
           <div className="card-header py-3 text-white bg-dark">
             <h4 className="my-0 fw-normal">
               {' '}
-              <h3>Proposal {proposalId}</h3>
+              <h3>
+                {proposal.info.prompt} #{proposalId}
+              </h3>
             </h4>
+            <div>{proposal.url}</div>
           </div>
           <div className="card-body">
             <h1 className="card-title">
@@ -203,10 +272,12 @@ const Home: NextPage = () => {
         </div>
         {/* {nftsForCreatorInWallet} */}
         <div className="row justify-content-start">
-          {Object.keys(votesById).map((voteId: any) => {
-            const votes = votesById[voteId];
+          {proposals.map((proposal: any) => {
+            const filteredVotes = votes.filter(
+              (vote: any) => vote.id === proposal.proposalId
+            );
 
-            return renderVotesForProposal(voteId, votes);
+            return renderVotesForProposal(proposal, filteredVotes);
           })}
         </div>
       </main>
