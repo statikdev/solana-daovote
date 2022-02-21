@@ -27,6 +27,32 @@ const MetaplexMetadataProgramAddressPubKey = new PublicKey(
 const NFT_CREATOR_ADDRESS = '7V5HgodrUb1jebRpFDsxTnYMKvEbMvbpTLn9kCinHPdd';
 const CreatorAddressPublicKey = new PublicKey(NFT_CREATOR_ADDRESS);
 
+type VoteOption = {
+  label: string;
+  value: number;
+  onchainValue: number;
+};
+
+type VoteOptionWithResult = {
+  label: string;
+  value: number;
+  onchainValue: number;
+  count: number;
+};
+
+type ProposalInfo = {
+  proposalId: number;
+  prompt: string;
+  description: string;
+  proposedBy: string;
+  proposedByNftMintAddress: string;
+  documentProposalUri: string;
+  totalVotesAvailable: number;
+  voteOptions: Array<VoteOption>;
+  proposalDate: string;
+  proposalEndDate: string;
+};
+
 const Home: NextPage = () => {
   const { connection } = useConnection();
   const { publicKey, sendTransaction } = useWallet();
@@ -41,11 +67,47 @@ const Home: NextPage = () => {
   const [selectedNFTMintAddress, setSelectedNFTMintAddress] = useState<
     string | undefined
   >(undefined);
+  const [proposalInfo, setProposalInfo] = useState<ProposalInfo | null>(null);
+  const [isLoading, setIsLoading] = useState<Boolean>(false);
 
   const router = useRouter();
   const { proposalId } = router.query;
 
   useEffect(() => {
+    async function retrieveProposal() {
+      setIsLoading(true);
+      const proposalPDA = (
+        await PublicKey.findProgramAddress(
+          [
+            new PublicKey(NFT_CREATOR_ADDRESS).toBuffer(),
+            toU64Le(+proposalId!),
+          ],
+          VoteProgramAddressPubKey
+        )
+      )[0];
+
+      const proposalAccount = await connection.getAccountInfo(proposalPDA);
+      if (!proposalAccount || !proposalAccount.data) {
+        setIsLoading(false);
+        return;
+      }
+
+      const urlBytes = proposalAccount.data.slice(0, 100);
+      const url = String.fromCharCode(
+        ...Array.from(urlBytes).filter((e) => e > 0)
+      );
+
+      let proposalInfo: ProposalInfo | null = null;
+      try {
+        const proposalInfoRequest = await fetch(url + '?type=json');
+        proposalInfo = JSON.parse(await proposalInfoRequest.text());
+
+        setProposalInfo(proposalInfo);
+      } catch (e) {}
+
+      setIsLoading(false);
+    }
+
     async function retrieve() {
       const gpa = await connection.getProgramAccounts(
         VoteProgramAddressPubKey,
@@ -91,7 +153,9 @@ const Home: NextPage = () => {
 
       setVotes(votes);
     }
+
     retrieve();
+    retrieveProposal();
   }, [connection, publicKey]);
 
   const castVote = useCallback(
@@ -243,20 +307,21 @@ const Home: NextPage = () => {
               {mintData && mintData.name && (
                 <h5 className="card-title">{mintData.name}</h5>
               )}
-              <h6 className="card-subtitle mb-3 text-muted">{d.mint}</h6>
-                  {' '}
-                  {mintData && mintData.image && (
-                    <Image
-                      src={mintData.image}
-                      width="100px"
-                      height="100px"
-                      alt={d.mint}
-                    />
-                  )}
-              </div>
+              <h6 className="card-subtitle mb-3 text-muted">{d.mint}</h6>{' '}
+              {mintData && mintData.image && (
+                <Image
+                  src={mintData.image}
+                  width="100px"
+                  height="100px"
+                  alt={d.mint}
+                />
+              )}
+            </div>
             <div className="card-footer bg-dark">
               <small className="text-white">
-                <h6>{d.voter} voted for {d.vote_option}</h6>
+                <h6>
+                  {d.voter} voted for {d.vote_option}
+                </h6>
               </small>
             </div>
           </div>
@@ -293,6 +358,63 @@ const Home: NextPage = () => {
 
   const disableVoting = isVotingActionInProgress || !selectedNFTMintAddress;
 
+  const mainView = isLoading ? (
+    <span>loading...</span>
+  ) : (
+    <>
+      <h2 className="text-center">
+        {proposalInfo?.prompt || 'Unable to load'}
+      </h2>
+      <div className="badge bg-secondary mt-2 p-2">
+        <i className="bi bi-calendar2-check me-2"></i>
+        {proposalInfo?.proposalDate}
+      </div>
+      <p className="mt-3"></p>
+      <div className="row justify-content-end">
+        <div className="col-4">
+          <p className="fw-bold">{proposalInfo?.proposalEndDate}</p>
+        </div>
+        <div className="col-4">
+          <p className="fw-bold">Total Votes: {votes.length}</p>
+        </div>
+      </div>
+    </>
+  );
+
+  const votingInActionView = isVotingActionInProgress ? (
+    <div className="fw-bold">
+      {isVotingActionInProgress ? 'Voting...' : 'Select Option: '}
+    </div>
+  ) : null;
+
+  const votingOptionsView =
+    proposalInfo?.voteOptions?.map((voteOption: VoteOption) => {
+      const btnType =
+        voteOption.value === 0 ? ' btn-danger' : ' btn-success me-2';
+
+      return (
+        <>
+          <button
+            disabled={disableVoting}
+            onClick={() => {
+              if (disableVoting) {
+                return;
+              }
+
+              castVote(
+                new PublicKey(selectedNFTMintAddress),
+                +proposalId,
+                voteOption.value
+              );
+            }}
+            className={`btn ${btnType}`}
+          >
+            VOTE {voteOption.label.toUpperCase()}
+          </button>
+        </>
+      );
+    }) || [];
+
   return (
     <div className={styles.container}>
       <Head>
@@ -303,67 +425,11 @@ const Home: NextPage = () => {
 
       <main className={styles.main}>
         <h3 className="fw-normal text-center">Proposal {proposalId}</h3>
-        <h2 className="text-center">
-          Should we accept the proposed royalties and changes by SMB team?
-        </h2>
-        <div className="badge bg-secondary mt-2 p-2">
-          <i className="bi bi-calendar2-check me-2"></i>Mon, May 25th 2020
-        </div>
-        <p className="mt-3">
-          Aliquam in porta lectus, at sodales orci. Aliquam venenatis nunc
-          justo. Integer posuere porta nulla in vestibulum. Nulla facilisis est
-          vel velit cursus posuere. Curabitur ornare porta est. Aenean sapien
-          ante, imperdiet et lacinia sed, porttitor iaculis eros. Vestibulum
-          vitae interdum massa. Vivamus non enim et lectus convallis elementum
-          sed in nunc. In faucibus porttitor lectus, et scelerisque sem pharetra
-          eget. Aliquam faucibus vel lorem ut egestas. Suspendisse mattis
-          vulputate eleifend. Suspendisse tristique est id magna efficitur
-          scelerisque. Sed lorem orci, vulputate ut tellus vitae, scelerisque
-          iaculis risus. Aliquam felis nisi, ullamcorper eget mauris vitae,
-          fermentum ullamcorper nibh. Donec scelerisque enim in volutpat
-          placerat. Nam id dui dui. Class aptent taciti sociosqu ad litora
-          torquent per conubia nostra, per inceptos himenaeos. Pellentesque elit
-          tortor, efficitur et leo a, rhoncus sollicitudin justo. Etiam pulvinar
-          metus vitae lacus venenatis tempus.
-        </p>
-        <div className="row justify-content-end">
-          <div className="col-4">
-            <p className="fw-bold">Ends on 26th May, 2024</p>
-          </div>
-          <div className="col-4">
-            <p className="fw-bold">Total Votes: {votes.length}</p>
-          </div>
-        </div>
+        {mainView}
         {nftsForCreatorInWallet}
         {(isConnected && (
           <div style={{ paddingTop: '15px' }}>
-            <span className="fw-bold">
-              {isVotingActionInProgress ? 'Voting...' : 'Select Option: '}
-            </span>
-            <button
-              disabled={disableVoting}
-              onClick={() => {
-                if (disableVoting) {
-                  return;
-                }
-                castVote(new PublicKey(selectedNFTMintAddress), +proposalId, 1);
-              }}
-              className="btn btn-success me-2"
-            >
-              VOTE YES
-            </button>
-            <button
-              disabled={disableVoting}
-              onClick={() => {
-                if (disableVoting) {
-                  return;
-                }
-                castVote(new PublicKey(selectedNFTMintAddress), +proposalId, 0);
-              }}
-              className="btn btn-danger"
-            >
-              VOTE NO
-            </button>
+            {votingInActionView || votingOptionsView}
           </div>
         )) ||
           null}
