@@ -51,6 +51,7 @@ const App: FC<AppProps> = ({ Component, pageProps }) => {
       <Head>
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </Head>
+      <div className="container py-3">
       <ConnectionProvider endpoint={endpoint}>
         <WalletProvider wallets={wallets} autoConnect>
           <WalletModalProvider>
@@ -60,6 +61,7 @@ const App: FC<AppProps> = ({ Component, pageProps }) => {
           </WalletModalProvider>
         </WalletProvider>
       </ConnectionProvider>
+      </div>
     </>
   );
 };

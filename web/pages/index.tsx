@@ -92,6 +92,7 @@ const Home: NextPage = () => {
   }, {});
 
   function renderVotesForProposal(proposalId: any, votes: any) {
+    console.log('propose', proposalId, votes);
     const voteResultsCount = votes.reduce((acc: any, vote: any) => {
       if (!acc[vote.vote_option]) {
         acc[vote.vote_option] = {
@@ -106,21 +107,41 @@ const Home: NextPage = () => {
     }, {});
 
     return (
-      <>
-        <Link href={`/proposal/${proposalId}`} passHref>
-          <h3>Proposal {proposalId}</h3>
-        </Link>
-        <div>
-          {Object.keys(voteResultsCount).map((voteOption: any) => {
-            const voteResultForOption = voteResultsCount[voteOption];
-            return (
-              <span key={voteOption}>
-                <b>Option: {voteOption}</b> - Total: {voteResultForOption.count}
-              </span>
-            );
-          })}
+      <div className="col-12">
+        <div className="card mb-4 rounded-3 shadow-sm">
+          <div className="card-header py-3 text-white bg-dark">
+            <h4 className="my-0 fw-normal">
+              {' '}
+              <h3>Proposal {proposalId}</h3>
+            </h4>
+          </div>
+          <div className="card-body">
+            <h1 className="card-title">
+              {votes.length}
+              <small className="text-muted fw-light"> votes</small>
+            </h1>
+            <ul className="list-unstyled mt-3 mb-4">
+              {Object.keys(voteResultsCount).map((voteOption: any) => {
+                const voteResultForOption = voteResultsCount[voteOption];
+                return (
+                  <li key={voteOption}>
+                    <b>Option: {voteOption}</b> - Total:{' '}
+                    {voteResultForOption.count}
+                  </li>
+                );
+              })}
+            </ul>
+            <button
+              type="button"
+              className="w-100 btn btn-lg btn-outline-primary"
+            >
+              <Link href={`/proposal/${proposalId}`} passHref>
+                Vote Now
+              </Link>
+            </button>
+          </div>
         </div>
-      </>
+      </div>
     );
   }
 
@@ -171,8 +192,17 @@ const Home: NextPage = () => {
       </Head>
 
       <main className={styles.main}>
-        {nftsForCreatorInWallet}
-        <div style={{ paddingTop: '30px', paddingBottom: '30px' }}>
+        <div className="pricing-header p-3 pb-md-4 mx-auto text-center">
+          <h1 className="display-4 fw-normal">MonkeDao Vote</h1>
+          <p className="fs-5 text-muted">
+            Vote for proposals put forth by the MonkeDAO on-chain by connecting
+            your wallet. Have your voice be heard. Each SMB can vote once for a
+            proposal, if you buy an SMB that has already voted on a particular
+            proposal, you CANNOT vote again using it.
+          </p>
+        </div>
+        {/* {nftsForCreatorInWallet} */}
+        <div className="row justify-content-start">
           {Object.keys(votesById).map((voteId: any) => {
             const votes = votesById[voteId];
 
