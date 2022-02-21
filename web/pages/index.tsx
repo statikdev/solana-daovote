@@ -23,6 +23,13 @@ type VoteOption = {
   onchainValue: number;
 };
 
+type VoteOptionWithResult = {
+  label: string;
+  value: number;
+  onchainValue: number;
+  count: number;
+};
+
 type ProposalInfo = {
   proposalId: number;
   prompt: string;
@@ -157,18 +164,26 @@ const Home: NextPage = () => {
 
   function renderVotesForProposal(proposal: Proposal, votes: any) {
     console.log('propose', proposal.id, votes);
-    const voteResultsCount = votes.reduce((acc: any, vote: any) => {
-      if (!acc[vote.vote_option]) {
-        acc[vote.vote_option] = {
-          option: vote.vote_option,
-          count: 0,
+
+    const totalVotes = votes.filter(
+      (vote: any) => vote.vote === proposal.id
+    ).length;
+    const voteResultsCount = proposal.info.voteOptions.map(
+      (voteOption: VoteOption) => {
+        const voteOptionWithResults: VoteOptionWithResult = {
+          ...voteOption,
+          count: votes.filter((vote: any) => {
+            return (
+              proposal.id === vote.vote &&
+              Number(vote.vote_option) === voteOption.value
+            );
+          }).length,
         };
-      }
 
-      acc[vote.vote_option].count++;
-
-      return acc;
-    }, {});
+        return voteOptionWithResults;
+      },
+      {}
+    );
 
     const proposalId = proposal.id;
 
@@ -186,19 +201,20 @@ const Home: NextPage = () => {
           </div>
           <div className="card-body">
             <h1 className="card-title">
-              {votes.length}
+              {totalVotes}
               <small className="text-muted fw-light"> votes</small>
             </h1>
             <ul className="list-unstyled mt-3 mb-4">
-              {Object.keys(voteResultsCount).map((voteOption: any) => {
-                const voteResultForOption = voteResultsCount[voteOption];
-                return (
-                  <li key={voteOption}>
-                    <b>Option: {voteOption}</b> - Total:{' '}
-                    {voteResultForOption.count}
-                  </li>
-                );
-              })}
+              {voteResultsCount.map(
+                (voteOptionWithResult: VoteOptionWithResult) => {
+                  return (
+                    <li key={voteOptionWithResult.value}>
+                      <b>Option: {voteOptionWithResult.label}</b> - Total:{' '}
+                      {voteOptionWithResult.count}
+                    </li>
+                  );
+                }
+              )}
             </ul>
             <button
               type="button"
