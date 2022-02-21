@@ -49,59 +49,61 @@ export default function NFTCards({
 
   return (
     <>
-        <h3>Your Votes</h3>
-        <div className="row gx-3 gy-3">
-          {nftsWithMetadata.map((record: NFTWithMetadata) => {
-            const isAvailableForSelection = !unavailableNFTs.some(
-              (nft: any) => nft === record.mintAddress
+      <h3>Your Votes</h3>
+      <div className="row gx-3 gy-3">
+        {nftsWithMetadata.map((record: NFTWithMetadata) => {
+          const isAvailableForSelection = !unavailableNFTs.some(
+            (nft: any) => nft === record.mintAddress
+          );
+          let hasVotedCard, voteForMint, selectedCard;
+          if (!isAvailableForSelection) {
+            hasVotedCard = 'text-white bg-secondary';
+            voteForMint = votes.find(
+              (vote) => vote.mint === record.mintAddress
             );
-            let hasVotedCard, voteForMint, selectedCard;
-            if (!isAvailableForSelection) {
-              hasVotedCard = 'text-white bg-secondary';
-              voteForMint = votes.find(
-                (vote) => vote.mint === record.mintAddress
-              );
-            }
-            if (selectedNFTMintAddress === record.mintAddress) {
-              selectedCard = 'border-success border-4';
-            }
-            return (
+          }
+          if (selectedNFTMintAddress === record.mintAddress) {
+            selectedCard = 'border-success border-4';
+          }
+          return (
+            <div
+              className="col-4"
+              key={record.mintAddress}
+              d-flex
+              align-items-stretch
+            >
               <div
-                className="col-4"
-                key={record.mintAddress}
-                d-flex
-                align-items-stretch
+                className={`card ${selectedCard} ${hasVotedCard}`}
+                onClick={() => {
+                  if (!isAvailableForSelection) {
+                    return;
+                  }
+                  onSelectAction(record.mintAddress);
+                }}
               >
-                <div
-                  className={`card ${selectedCard} ${hasVotedCard}`}
-                  onClick={() => {
-                    if (!isAvailableForSelection) {
-                      return;
-                    }
-                    onSelectAction(record.mintAddress);
-                  }}
-                >
-                  <div className="card-body">
-                    <h5 className="card-title">{record.name}</h5>
-                    <Image
-                      src={record.imageUrl}
-                      width="100px"
-                      height="100px"
-                      alt={record.name}
-                    />
-                  </div>
-                  <div className="card-footer bg-white">
-                    <small className="text-dark">
+                <div className="card-body">
+                  <h5 className="card-title">{record.name}</h5>
+                  <Image
+                    src={record.imageUrl}
+                    width="100px"
+                    height="100px"
+                    alt={record.name}
+                  />
+                </div>
+                <div className="card-footer bg-white">
+                  <small className="text-dark">
                     {voteForMint ? (
                       <h4>Your vote is for option {voteForMint.vote_option}</h4>
-                    ) : <h4>You have not voted</h4>}
-                    </small>
-                  </div>
+                    ) : (
+                      <h4>You have not voted</h4>
+                    )}
+                  </small>
                 </div>
               </div>
-            );
-          })}
-        </div>
+            </div>
+          );
+        })}
+      </div>
     </>
   );
 }
