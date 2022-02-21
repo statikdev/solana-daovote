@@ -1,5 +1,6 @@
 import type { NextPage } from 'next';
 import Head from 'next/head';
+import Image from 'next/image';
 import Base58 from 'bs58';
 import styles from '../../styles/Home.module.css';
 import BN from 'bn.js';
@@ -9,14 +10,14 @@ import { useConnection, useWallet } from '@solana/wallet-adapter-react';
 import { Transaction, TransactionInstruction } from '@solana/web3.js';
 import { PublicKey } from '@solana/web3.js';
 
-import NFTSelection from '../../components/NFTSelection';
+import NFTCards from '../../components/NFTCards';
 import {
   METAPLEX_METADATA_PROGRAM_ADDRESS,
   VOTE_PROGRAM_ADDRESS,
 } from '../../constants/addresses';
 import { toU64Le } from '../../utils';
 
-import { getNFTDataForMint } from '../../services/NFT';
+import { getNFTsForWallet, getNFTDataForMint } from '../../services/NFT';
 
 const VoteProgramAddressPubKey = new PublicKey(VOTE_PROGRAM_ADDRESS);
 const MetaplexMetadataProgramAddressPubKey = new PublicKey(
@@ -29,6 +30,8 @@ const CreatorAddressPublicKey = new PublicKey(NFT_CREATOR_ADDRESS);
 const Home: NextPage = () => {
   const { connection } = useConnection();
   const { publicKey, sendTransaction } = useWallet();
+  const [availableNfts, setAvailableNFTs] = useState<any>([]);
+
   const isConnected = !!publicKey;
 
   const [isVotingActionInProgress, setVotingActionInProgress] =
@@ -76,6 +79,15 @@ const Home: NextPage = () => {
           vote_option = new BN(e.account.data.slice(108), 10, 'le').toString();
         return { voter, creator, mint, vote, vote_option, time };
       });
+
+      if (publicKey) {
+        const nfts = await getNFTsForWallet(
+          connection,
+          new PublicKey(publicKey),
+          NFT_CREATOR_ADDRESS
+        );
+        setAvailableNFTs(nfts);
+      }
 
       setVotes(votes);
     }
@@ -216,50 +228,58 @@ const Home: NextPage = () => {
 
   function renderVotesForProposal(proposalId: any, votes: any) {
     const votesView = votes.map((d: any) => {
-      const mintImageUrl = nftImagesToShow
+      const mintData = nftImagesToShow
         .filter((mint: any) => !!mint.data)
-        .find((record: any) => record.mint === d.mint)?.data?.image;
+        .find((record: any) => record.mint === d.mint)?.data;
       return (
-        <div key={d.time.toISOString()}>
-          <b>Vote</b> <br />
-          <u>By: </u>
-          {d.voter}
-          <br />
-          <u>NFT Authority: </u>
-          {d.creator}
-          <br />
-          <u>Mint Token: </u>
-          {d.mint}
-          {mintImageUrl && (
-            <img src={mintImageUrl} width="32px" height="32px" />
-          )}
-          <br />
-          <u>Vote Id: </u>
-          {d.vote}
-          <br />
-          <u>Vote: </u>
-          {d.vote_option}
-          <br />
-          {d.time.toISOString()}
+        <div
+          className="col-4"
+          key={d.time.toISOString()}
+          d-flex
+          align-items-stretch
+        >
+          <div className="card">
+            <div className="card-body">
+              {mintData && mintData.name && (
+                <h5 className="card-title">{mintData.name}</h5>
+              )}
+              <h6 className="card-subtitle mb-3 text-muted">{d.mint}</h6>
+                  {' '}
+                  {mintData && mintData.image && (
+                    <Image
+                      src={mintData.image}
+                      width="100px"
+                      height="100px"
+                      alt={d.mint}
+                    />
+                  )}
+              </div>
+            <div className="card-footer bg-dark">
+              <small className="text-white">
+                <h6>{d.voter} voted for {d.vote_option}</h6>
+              </small>
+            </div>
+          </div>
         </div>
       );
     });
 
     return (
       <>
-        <h3>Proposal {proposalId}</h3>
-        <div>{votesView}</div>
+        <h3>All Votes</h3>
+        <div className="row gx-3 gy-3">{votesView}</div>
       </>
     );
   }
   const nftsForCreatorInWallet =
     (publicKey && (
-      <NFTSelection
+      <NFTCards
         connection={connection}
         nftCreatorAddress={NFT_CREATOR_ADDRESS}
         onSelectAction={(newSelectedNFTMintAddress) =>
           setSelectedNFTMintAddress(newSelectedNFTMintAddress)
         }
+        votes={votes}
         selectedNFTMintAddress={selectedNFTMintAddress}
         unavailableNFTs={unavailableNFTs}
         walletAddress={publicKey.toString()}
@@ -282,10 +302,42 @@ const Home: NextPage = () => {
       </Head>
 
       <main className={styles.main}>
+        <h3 className="fw-normal text-center">Proposal {proposalId}</h3>
+        <h2 className="text-center">
+          Should we accept the proposed royalties and changes by SMB team?
+        </h2>
+        <div className="badge bg-secondary mt-2 p-2">
+          <i className="bi bi-calendar2-check me-2"></i>Mon, May 25th 2020
+        </div>
+        <p className="mt-3">
+          Aliquam in porta lectus, at sodales orci. Aliquam venenatis nunc
+          justo. Integer posuere porta nulla in vestibulum. Nulla facilisis est
+          vel velit cursus posuere. Curabitur ornare porta est. Aenean sapien
+          ante, imperdiet et lacinia sed, porttitor iaculis eros. Vestibulum
+          vitae interdum massa. Vivamus non enim et lectus convallis elementum
+          sed in nunc. In faucibus porttitor lectus, et scelerisque sem pharetra
+          eget. Aliquam faucibus vel lorem ut egestas. Suspendisse mattis
+          vulputate eleifend. Suspendisse tristique est id magna efficitur
+          scelerisque. Sed lorem orci, vulputate ut tellus vitae, scelerisque
+          iaculis risus. Aliquam felis nisi, ullamcorper eget mauris vitae,
+          fermentum ullamcorper nibh. Donec scelerisque enim in volutpat
+          placerat. Nam id dui dui. Class aptent taciti sociosqu ad litora
+          torquent per conubia nostra, per inceptos himenaeos. Pellentesque elit
+          tortor, efficitur et leo a, rhoncus sollicitudin justo. Etiam pulvinar
+          metus vitae lacus venenatis tempus.
+        </p>
+        <div className="row justify-content-end">
+          <div className="col-4">
+            <p className="fw-bold">Ends on 26th May, 2024</p>
+          </div>
+          <div className="col-4">
+            <p className="fw-bold">Total Votes: {votes.length}</p>
+          </div>
+        </div>
         {nftsForCreatorInWallet}
         {(isConnected && (
           <div style={{ paddingTop: '15px' }}>
-            <span>
+            <span className="fw-bold">
               {isVotingActionInProgress ? 'Voting...' : 'Select Option: '}
             </span>
             <button
@@ -296,6 +348,7 @@ const Home: NextPage = () => {
                 }
                 castVote(new PublicKey(selectedNFTMintAddress), +proposalId, 1);
               }}
+              className="btn btn-success me-2"
             >
               VOTE YES
             </button>
@@ -307,6 +360,7 @@ const Home: NextPage = () => {
                 }
                 castVote(new PublicKey(selectedNFTMintAddress), +proposalId, 0);
               }}
+              className="btn btn-danger"
             >
               VOTE NO
             </button>
