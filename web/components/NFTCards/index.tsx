@@ -5,11 +5,7 @@ import { Connection, PublicKey } from '@solana/web3.js';
 
 import { getNFTsForWallet } from '../../services/NFT';
 
-type NFTWithMetadata = {
-  imageUrl: string;
-  mintAddress: string;
-  name: string;
-};
+import { NFTWithMetadata } from '../../types';
 
 export default function NFTCards({
   connection,

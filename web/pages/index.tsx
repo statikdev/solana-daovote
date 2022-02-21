@@ -13,40 +13,16 @@ import { VOTE_PROGRAM_ADDRESS } from '../constants/addresses';
 
 import { getNFTsForWallet, getNFTDataForMint } from '../services/NFT';
 
+import {
+  ProposalInfo,
+  Proposal,
+  VoteOption,
+  VoteOptionWithResult,
+} from '../types';
+
 const VoteProgramAddressPubKey = new PublicKey(VOTE_PROGRAM_ADDRESS);
 
 const NFT_CREATOR_ADDRESS = '7V5HgodrUb1jebRpFDsxTnYMKvEbMvbpTLn9kCinHPdd';
-
-type VoteOption = {
-  label: string;
-  value: number;
-  onchainValue: number;
-};
-
-type VoteOptionWithResult = {
-  label: string;
-  value: number;
-  onchainValue: number;
-  count: number;
-};
-
-type ProposalInfo = {
-  proposalId: number;
-  prompt: string;
-  description: string;
-  proposedBy: string;
-  proposedByNftMintAddress: string;
-  documentProposalUri: string;
-  totalVotesAvailable: number;
-  voteOptions: Array<VoteOption>;
-  proposalDate: string;
-};
-
-type Proposal = {
-  id: number;
-  info: ProposalInfo;
-  url: string;
-};
 
 const Home: NextPage = () => {
   const { connection } = useConnection();

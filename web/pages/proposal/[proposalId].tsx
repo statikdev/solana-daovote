@@ -18,6 +18,7 @@ import {
 import { toU64Le } from '../../utils';
 
 import { getNFTsForWallet, getNFTDataForMint } from '../../services/NFT';
+import { ProposalInfo, VoteOption } from '../../types';
 
 const VoteProgramAddressPubKey = new PublicKey(VOTE_PROGRAM_ADDRESS);
 const MetaplexMetadataProgramAddressPubKey = new PublicKey(
@@ -26,32 +27,6 @@ const MetaplexMetadataProgramAddressPubKey = new PublicKey(
 
 const NFT_CREATOR_ADDRESS = '7V5HgodrUb1jebRpFDsxTnYMKvEbMvbpTLn9kCinHPdd';
 const CreatorAddressPublicKey = new PublicKey(NFT_CREATOR_ADDRESS);
-
-type VoteOption = {
-  label: string;
-  value: number;
-  onchainValue: number;
-};
-
-type VoteOptionWithResult = {
-  label: string;
-  value: number;
-  onchainValue: number;
-  count: number;
-};
-
-type ProposalInfo = {
-  proposalId: number;
-  prompt: string;
-  description: string;
-  proposedBy: string;
-  proposedByNftMintAddress: string;
-  documentProposalUri: string;
-  totalVotesAvailable: number;
-  voteOptions: Array<VoteOption>;
-  proposalDate: string;
-  proposalEndDate: string;
-};
 
 const Home: NextPage = () => {
   const { connection } = useConnection();
