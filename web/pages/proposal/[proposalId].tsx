@@ -299,7 +299,7 @@ const Home: NextPage = () => {
           setSelectedNFTMintAddress(newSelectedNFTMintAddress)
         }
         votes={votes}
-        voteOptions={proposalInfo?.voteOptions}
+        voteOptions={proposalInfo?.voteOptions || []}
         selectedNFTMintAddress={selectedNFTMintAddress}
         unavailableNFTs={unavailableNFTs}
         walletAddress={publicKey.toString()}

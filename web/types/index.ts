@@ -21,6 +21,7 @@ export type ProposalInfo = {
   totalVotesAvailable: number;
   voteOptions: Array<VoteOption>;
   proposalDate: string;
+  proposalEndDate: string;
 };
 
 export type Proposal = {

@@ -14,14 +14,14 @@ export default function NFTCards({
   selectedNFTMintAddress,
   unavailableNFTs,
   votes,
-  voteOptions,
+  voteOptions = [],
   walletAddress,
 }: {
   connection: Connection;
   nftCreatorAddress: string;
   onSelectAction: (nftMintAddress: string) => void;
   votes: Array<any>;
-  voteOptions: Array<VoteOption>;
+  voteOptions: Array<VoteOption> | undefined;
   selectedNFTMintAddress?: string;
   unavailableNFTs: Array<string>;
   walletAddress: string;
