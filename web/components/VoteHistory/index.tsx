@@ -1,5 +1,9 @@
 import Image from 'next/image';
+import Link from 'next/link';
 
+const shortendAddr = (addr: string) => {
+  return `${addr.substr(0, 6)}...${addr.substr(addr.length - 6, 6)}`;
+};
 export default function VoteHistory({
   proposalInfo,
   nftImages,
@@ -11,7 +15,7 @@ export default function VoteHistory({
   proposalId: any;
   votes: any;
 }) {
-  const votesView = votes.map((d: any) => {
+  const votesTable = votes.map((d: any) => {
     const mintData = nftImages
       .filter((mint: any) => !!mint.data)
       .find((record: any) => record.mint === d.mint)?.data;
@@ -20,43 +24,52 @@ export default function VoteHistory({
       (voteOption: any) => voteOption.value === Number(d.vote_option)
     );
     return (
-      <div
-        className="col-4"
-        key={d.time.toISOString()}
-        d-flex
-        align-items-stretch
-      >
-        <div className="card">
-          <div className="card-body">
-            {mintData && mintData.name && (
-              <h5 className="card-title">{mintData.name}</h5>
-            )}
-            <h6 className="card-subtitle mb-3 text-muted">{d.mint}</h6>{' '}
-            {mintData && mintData.image && (
-              <Image
-                src={mintData.image}
-                width="100px"
-                height="100px"
-                alt={d.mint}
-              />
-            )}
-          </div>
-          <div className="card-footer bg-dark">
-            <small className="text-white">
-              <h6>
-                {d.voter} voted for {voteOption?.label}
-              </h6>
-            </small>
-          </div>
-        </div>
-      </div>
+      <tr key={d.time.toISOString()}>
+        <td className="d-flex justify-content-center">
+          {mintData && mintData.image && (
+            <Image
+              src={mintData.image}
+              width="45px"
+              height="45px"
+              alt={d.mint}
+            />
+          )}
+        </td>
+        <td>
+          {mintData?.name}
+          <br />
+          <code>
+            <Link href={`https://solscan.io/account/${d.mint}`}>
+              {shortendAddr(d.mint)}
+            </Link>
+          </code>
+        </td>
+        <td>
+          <Link href={`https://solscan.io/account/${d.voter}`}>
+            {shortendAddr(d.voter)}
+          </Link>
+        </td>
+        <td>{voteOption?.label}</td>
+        <td>{d.time.toISOString()}</td>
+      </tr>
     );
   });
 
   return (
     <>
       <h3>All Votes</h3>
-      <div className="row gx-3 gy-3">{votesView}</div>
+      <table className="table table-sm table-light align-middle">
+        <thead>
+          <tr>
+            <th scope="col"></th>
+            <th scope="col">NFT</th>
+            <th scope="col">Voter Addr</th>
+            <th scope="col">Vote Option</th>
+            <th scope="col">Date</th>
+          </tr>
+        </thead>
+        <tbody>{votesTable}</tbody>
+      </table>
     </>
   );
 }
