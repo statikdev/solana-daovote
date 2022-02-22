@@ -270,6 +270,10 @@ const Home: NextPage = () => {
       const mintData = nftImagesToShow
         .filter((mint: any) => !!mint.data)
         .find((record: any) => record.mint === d.mint)?.data;
+
+      const voteOption = proposalInfo?.voteOptions?.find(
+        (voteOption) => voteOption.value === Number(d.vote_option)
+      );
       return (
         <div
           className="col-4"
@@ -295,7 +299,7 @@ const Home: NextPage = () => {
             <div className="card-footer bg-dark">
               <small className="text-white">
                 <h6>
-                  {d.voter} voted for {d.vote_option}
+                  {d.voter} voted for {voteOption?.label}
                 </h6>
               </small>
             </div>
@@ -320,6 +324,7 @@ const Home: NextPage = () => {
           setSelectedNFTMintAddress(newSelectedNFTMintAddress)
         }
         votes={votes}
+        voteOptions={proposalInfo?.voteOptions}
         selectedNFTMintAddress={selectedNFTMintAddress}
         unavailableNFTs={unavailableNFTs}
         walletAddress={publicKey.toString()}

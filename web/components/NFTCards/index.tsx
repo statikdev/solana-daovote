@@ -5,21 +5,23 @@ import { Connection, PublicKey } from '@solana/web3.js';
 
 import { getNFTsForWallet } from '../../services/NFT';
 
-import { NFTWithMetadata } from '../../types';
+import { NFTWithMetadata, VoteOption } from '../../types';
 
 export default function NFTCards({
   connection,
   nftCreatorAddress,
   onSelectAction,
-  votes,
   selectedNFTMintAddress,
   unavailableNFTs,
+  votes,
+  voteOptions,
   walletAddress,
 }: {
   connection: Connection;
   nftCreatorAddress: string;
   onSelectAction: (nftMintAddress: string) => void;
   votes: Array<any>;
+  voteOptions: Array<VoteOption>;
   selectedNFTMintAddress?: string;
   unavailableNFTs: Array<string>;
   walletAddress: string;
@@ -55,13 +57,17 @@ export default function NFTCards({
           const isAvailableForSelection = !unavailableNFTs.some(
             (nft: any) => nft === record.mintAddress
           );
-          let hasVotedCard, voteForMint, selectedCard;
+          let hasVotedCard, voteForMint: any, selectedCard;
           if (!isAvailableForSelection) {
             hasVotedCard = 'text-white bg-secondary';
             voteForMint = votes.find(
               (vote) => vote.mint === record.mintAddress
             );
           }
+
+          const voteOptionLabel = voteOptions.find((voteOption: VoteOption) => {
+            return voteOption.value === Number(voteForMint?.vote_option);
+          })?.label;
           if (selectedNFTMintAddress === record.mintAddress) {
             selectedCard = 'border-success border-4';
           }
@@ -93,7 +99,7 @@ export default function NFTCards({
                 <div className="card-footer bg-white">
                   <small className="text-dark">
                     {voteForMint ? (
-                      <h4>Your vote is for option {voteForMint.vote_option}</h4>
+                      <h4>Your vote is for option {voteOptionLabel}</h4>
                     ) : (
                       <h4>You have not voted</h4>
                     )}
