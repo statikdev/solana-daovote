@@ -36,18 +36,21 @@ export default function VoteHistory({
           )}
         </td>
         <td>
-          {mintData?.name}
-          <br />
-          <code>
-            <Link href={`https://solscan.io/account/${d.mint}`}>
-              {shortendAddr(d.mint)}
-            </Link>
-          </code>
+          <div className="d-flex flex-column">
+            <span> {mintData?.name}</span>
+            <code>
+              <Link href={`https://solscan.io/account/${d.mint}`}>
+                {shortendAddr(d.mint)}
+              </Link>
+            </code>
+          </div>
         </td>
         <td>
-          <Link href={`https://solscan.io/account/${d.voter}`}>
-            {shortendAddr(d.voter)}
-          </Link>
+          <code>
+            <Link href={`https://solscan.io/account/${d.voter}`}>
+              {shortendAddr(d.voter)}
+            </Link>
+          </code>
         </td>
         <td>{voteOption?.label}</td>
         <td>{d.time.toISOString()}</td>
