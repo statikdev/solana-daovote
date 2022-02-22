@@ -23,7 +23,7 @@ import {
 import { toU64Le } from '../../utils';
 
 import { getNFTsForWallet, getNFTDataForMint } from '../../services/NFT';
-import { ProposalInfo, VoteOption } from '../../types';
+import { Proposal, ProposalInfo, VoteOption } from '../../types';
 
 const VoteProgramAddressPubKey = new PublicKey(VOTE_PROGRAM_ADDRESS);
 const MetaplexMetadataProgramAddressPubKey = new PublicKey(
@@ -48,6 +48,7 @@ const Home: NextPage = () => {
     string | undefined
   >(undefined);
   const [proposalInfo, setProposalInfo] = useState<ProposalInfo | null>(null);
+  const [proposal, setProposal] = useState<Proposal | null>(null);
   const [isLoadingProposal, setIsLoadingProposal] = useState<Boolean>(false);
   const [isLoadingVotes, setIsLoadingVotes] = useState<Boolean>(false);
   const [alertState, setAlertState] = useState<any>({
@@ -89,6 +90,11 @@ const Home: NextPage = () => {
         proposalInfo = JSON.parse(await proposalInfoRequest.text());
 
         setProposalInfo(proposalInfo);
+        setProposal({
+          id: proposalId,
+          info: proposalInfo!,
+          url,
+        });
       } catch (e) {}
 
       setIsLoadingProposal(false);
@@ -326,6 +332,15 @@ const Home: NextPage = () => {
         <i className="bi bi-calendar2-check me-2"></i>
         {proposalInfo?.proposalDate}
       </div>
+      {proposal?.url ? (
+        <div className="">
+          <Link href={proposal?.url} passHref>
+            <a rel="noopener noreferrer" target="_blank">
+              → Proposal Source
+            </a>
+          </Link>
+        </div>
+      ) : null}
       <p className="mt-3">{proposalInfo?.description}</p>
       {proposalInfo?.documentProposalUri ? (
         <p>
