@@ -193,8 +193,8 @@ const Home: NextPage = () => {
                 className="progress-bar"
                 role="progressbar"
                 aria-valuenow={totalVotePercentage}
-                aria-valuemin="0"
-                aria-valuemax="100"
+                aria-valuemin={0}
+                aria-valuemax={100}
               >
                 &nbsp;&nbsp;{totalVotePercentageLabel}%&nbsp;&nbsp;
               </div>
