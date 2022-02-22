@@ -11,10 +11,11 @@ import { useRouter } from 'next/router';
 import { useConnection, useWallet } from '@solana/wallet-adapter-react';
 import { Transaction, TransactionInstruction } from '@solana/web3.js';
 import { PublicKey } from '@solana/web3.js';
-
-import NFTCards from '../../components/NFTCards';
 import { Snackbar } from '@material-ui/core';
 import Alert from '@material-ui/lab/Alert';
+
+import NFTCards from '../../components/NFTCards';
+import VoteHistory from '../../components/VoteHistory';
 import {
   METAPLEX_METADATA_PROGRAM_ADDRESS,
   VOTE_PROGRAM_ADDRESS,
@@ -55,7 +56,8 @@ const Home: NextPage = () => {
     severity: undefined,
   });
   const router = useRouter();
-  const { proposalId } = router.query;
+  const urlParams = router.query;
+  const proposalId = Number(urlParams.proposalId);
 
   useEffect(() => {
     async function retrieveProposal() {
@@ -273,75 +275,21 @@ const Home: NextPage = () => {
     retrieve();
   }, [connection, votes]);
 
-  const votesById = votes.reduce((acc: any, vote: any) => {
-    if (!acc[vote.vote]) {
-      acc[vote.vote] = [];
+  const votesForProposal = votes.reduce((acc: any, vote: any) => {
+    const voteProposalId = Number(vote.vote);
+
+    if (proposalId !== voteProposalId) {
+      return acc;
     }
 
-    acc[vote.vote].push(vote);
+    acc.push(vote);
     return acc;
-  }, {});
+  }, []);
 
   const unavailableNFTs = votes.map((vote: any) => {
     return vote.mint;
   });
 
-  function renderVotesForProposal(proposalId: any, votes: any) {
-    const votesView = votes.map((d: any) => {
-      const mintData = nftImagesToShow
-        .filter((mint: any) => !!mint.data)
-        .find((record: any) => record.mint === d.mint)?.data;
-
-      const voteOption = proposalInfo?.voteOptions?.find(
-        (voteOption) => voteOption.value === Number(d.vote_option)
-      );
-      return (
-        <div
-          className="col-4"
-          key={d.time.toISOString()}
-          d-flex
-          align-items-stretch
-        >
-          <div className="card">
-            <div className="card-body">
-              {mintData && mintData.name && (
-                <h5 className="card-title">{mintData.name}</h5>
-              )}
-              <h6 className="card-subtitle mb-3 text-muted">{d.mint}</h6>{' '}
-              {mintData && mintData.image && (
-                <Image
-                  src={mintData.image}
-                  width="100px"
-                  height="100px"
-                  alt={d.mint}
-                />
-              )}
-            </div>
-            <div className="card-footer bg-dark">
-              <small className="text-white">
-                <h6>
-                  {d.voter} voted for {voteOption?.label}
-                </h6>
-              </small>
-            </div>
-          </div>
-        </div>
-      );
-    });
-
-    return (
-      <>
-        <h3>All Votes</h3>
-        {isLoadingVotes ? (
-          <div className="spinner-border text-dark mt-5" role="status">
-            <span className="visually-hidden">Loading...</span>
-          </div>
-        ) : (
-          <div className="row gx-3 gy-3">{votesView}</div>
-        )}
-      </>
-    );
-  }
   const nftsForCreatorInWallet =
     (publicKey && (
       <NFTCards
@@ -453,13 +401,18 @@ const Home: NextPage = () => {
         )) ||
           null}
 
-        <div style={{ paddingTop: '30px', paddingBottom: '30px' }}>
-          {Object.keys(votesById).map((voteId: any) => {
-            const votes = votesById[voteId];
-
-            return renderVotesForProposal(voteId, votes);
-          })}
-        </div>
+        {isLoadingVotes ? (
+          <div className="spinner-border text-dark mt-5" role="status">
+            <span className="visually-hidden">Loading...</span>
+          </div>
+        ) : (
+          <VoteHistory
+            proposalInfo={proposalInfo}
+            nftImages={nftImagesToShow}
+            proposalId={proposalId}
+            votes={votesForProposal}
+          />
+        )}
       </main>
       <Snackbar
         open={alertState.open}
