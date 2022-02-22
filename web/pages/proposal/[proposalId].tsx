@@ -349,7 +349,7 @@ const Home: NextPage = () => {
         <i className="bi bi-calendar2-check me-2"></i>
         {proposalInfo?.proposalDate}
       </div>
-      <p className="mt-3"></p>
+      <p className="mt-3">{proposalInfo?.description}</p>
       <div className="row justify-content-end">
         <div className="col-4">
           <p className="fw-bold">{proposalInfo?.proposalEndDate}</p>
