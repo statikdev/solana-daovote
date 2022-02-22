@@ -163,6 +163,14 @@ const Home: NextPage = () => {
 
     const proposalId = proposal.id;
 
+    const totalVotePercentage =
+      Number(totalVotes / proposal.info.totalVotesAvailable) * 100;
+
+    let totalVotePercentageLabel = totalVotePercentage.toFixed(0);
+    if (totalVotePercentage < 1) {
+      totalVotePercentageLabel = '< 1';
+    }
+
     return (
       <div className="col-12">
         <div className="card mb-4 rounded-3 shadow-sm">
@@ -177,9 +185,20 @@ const Home: NextPage = () => {
           </div>
           <div className="card-body">
             <h1 className="card-title">
-              {totalVotes}
+              {totalVotes} / {proposal.info.totalVotesAvailable}
               <small className="text-muted fw-light"> votes</small>
             </h1>
+            <div className="progress">
+              <div
+                className="progress-bar"
+                role="progressbar"
+                aria-valuenow={totalVotePercentage}
+                aria-valuemin="0"
+                aria-valuemax="100"
+              >
+                &nbsp;&nbsp;{totalVotePercentageLabel}%&nbsp;&nbsp;
+              </div>
+            </div>
             <ul className="list-unstyled mt-3 mb-4">
               {voteResultsCount.map(
                 (voteOptionWithResult: VoteOptionWithResult) => {
@@ -205,7 +224,7 @@ const Home: NextPage = () => {
         </div>
       </div>
     );
-  } 
+  }
 
   return (
     <div className={styles.container}>
