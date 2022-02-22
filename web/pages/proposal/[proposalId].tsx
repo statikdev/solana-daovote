@@ -45,14 +45,15 @@ const Home: NextPage = () => {
     string | undefined
   >(undefined);
   const [proposalInfo, setProposalInfo] = useState<ProposalInfo | null>(null);
-  const [isLoading, setIsLoading] = useState<Boolean>(false);
+  const [isLoadingProposal, setIsLoadingProposal] = useState<Boolean>(false);
+  const [isLoadingVotes, setIsLoadingVotes] = useState<Boolean>(false);
 
   const router = useRouter();
   const { proposalId } = router.query;
 
   useEffect(() => {
     async function retrieveProposal() {
-      setIsLoading(true);
+      setIsLoadingProposal(true);
       const proposalPDA = (
         await PublicKey.findProgramAddress(
           [
@@ -65,7 +66,7 @@ const Home: NextPage = () => {
 
       const proposalAccount = await connection.getAccountInfo(proposalPDA);
       if (!proposalAccount || !proposalAccount.data) {
-        setIsLoading(false);
+        setIsLoadingProposal(false);
         return;
       }
 
@@ -82,10 +83,11 @@ const Home: NextPage = () => {
         setProposalInfo(proposalInfo);
       } catch (e) {}
 
-      setIsLoading(false);
+      setIsLoadingProposal(false);
     }
 
     async function retrieve() {
+      setIsLoadingVotes(true);
       const gpa = await connection.getProgramAccounts(
         VoteProgramAddressPubKey,
         {
@@ -127,7 +129,7 @@ const Home: NextPage = () => {
         );
         setAvailableNFTs(nfts);
       }
-
+      setIsLoadingVotes(false);
       setVotes(votes);
     }
 
@@ -313,7 +315,13 @@ const Home: NextPage = () => {
     return (
       <>
         <h3>All Votes</h3>
-        <div className="row gx-3 gy-3">{votesView}</div>
+        {isLoadingVotes ? (
+          <div className="spinner-border text-dark mt-5" role="status">
+            <span className="visually-hidden">Loading...</span>
+          </div>
+        ) : (
+          <div className="row gx-3 gy-3">{votesView}</div>
+        )}
       </>
     );
   }
@@ -340,8 +348,10 @@ const Home: NextPage = () => {
 
   const disableVoting = isVotingActionInProgress || !selectedNFTMintAddress;
 
-  const mainView = isLoading ? (
-    <span>loading...</span>
+  const mainView = isLoadingProposal ? (
+    <div className="spinner-border text-dark" role="status">
+      <span className="visually-hidden">Loading...</span>
+    </div>
   ) : (
     <>
       <h2 className="text-center">
@@ -371,8 +381,11 @@ const Home: NextPage = () => {
   );
 
   const votingInActionView = isVotingActionInProgress ? (
-    <div className="fw-bold">
-      {isVotingActionInProgress ? 'Voting...' : 'Select Option: '}
+    <div className="d-flex mt-3">
+      <h3 className="">VOTING IN PROGRESS...</h3>
+      <div className="spinner-border text-dark" role="status">
+        <span className="visually-hidden">Loading...</span>
+      </div>
     </div>
   ) : null;
 

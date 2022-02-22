@@ -192,57 +192,20 @@ const Home: NextPage = () => {
                 }
               )}
             </ul>
-            <button
-              type="button"
-              className="w-100 btn btn-lg btn-outline-primary"
-            >
-              <Link href={`/proposal/${proposalId}`} passHref>
+
+            <Link href={`/proposal/${proposalId}`} passHref>
+              <button
+                type="button"
+                className="w-100 btn btn-lg btn-outline-primary"
+              >
                 Vote Now
-              </Link>
-            </button>
+              </button>
+            </Link>
           </div>
         </div>
       </div>
     );
-  }
-
-  const nftsForCreatorInWallet =
-    (publicKey && (
-      <div className="container">
-        <div className="row">
-          {availbleNFTs.map((nft: any) => {
-            return (
-              <div className="col" key={nft.mint}>
-                <div className="card">
-                  <div className="card-body">
-                    <h5 className="card-title">{nft.storageData.name}</h5>
-                    <Image
-                      src={nft.storageData.image}
-                      width="100px"
-                      height="100px"
-                      alt={nft.mint}
-                    />
-                    <div className="row">
-                      <div className="col" key={nft.mint}>
-                        <a href="#" className="btn btn-primary">
-                          Yes
-                        </a>
-                      </div>
-                      <div className="col" key={nft.mint}>
-                        <a href="#" className="btn btn-primary">
-                          No
-                        </a>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      </div>
-    )) ||
-    null;
+  } 
 
   return (
     <div className={styles.container}>
@@ -262,7 +225,6 @@ const Home: NextPage = () => {
             proposal, you CANNOT vote again using it.
           </p>
         </div>
-        {/* {nftsForCreatorInWallet} */}
         <div className="row justify-content-start">
           {proposals.map((proposal: any) => {
             const filteredVotes = votes.filter(
