@@ -13,6 +13,8 @@ import { Transaction, TransactionInstruction } from '@solana/web3.js';
 import { PublicKey } from '@solana/web3.js';
 
 import NFTCards from '../../components/NFTCards';
+import { Snackbar } from '@material-ui/core';
+import Alert from '@material-ui/lab/Alert';
 import {
   METAPLEX_METADATA_PROGRAM_ADDRESS,
   VOTE_PROGRAM_ADDRESS,
@@ -47,7 +49,11 @@ const Home: NextPage = () => {
   const [proposalInfo, setProposalInfo] = useState<ProposalInfo | null>(null);
   const [isLoadingProposal, setIsLoadingProposal] = useState<Boolean>(false);
   const [isLoadingVotes, setIsLoadingVotes] = useState<Boolean>(false);
-
+  const [alertState, setAlertState] = useState<any>({
+    open: false,
+    message: '',
+    severity: undefined,
+  });
   const router = useRouter();
   const { proposalId } = router.query;
 
@@ -135,7 +141,7 @@ const Home: NextPage = () => {
 
     retrieve();
     retrieveProposal();
-  }, [connection, publicKey]);
+  }, [connection, publicKey, isVotingActionInProgress]);
 
   const castVote = useCallback(
     async (mintTokenId: PublicKey, voteId: number, vote: number) => {
@@ -229,6 +235,11 @@ const Home: NextPage = () => {
         );
 
         setVotingActionInProgress(false);
+        setAlertState({
+          open: true,
+          message: 'Congratulations! Your vote was recorded.',
+          severity: 'success',
+        });
       } catch (e: any) {
         const logs = e?.logs;
         let error = 'Unknown error occurred.';
@@ -236,6 +247,11 @@ const Home: NextPage = () => {
         if (logs) {
           error = logs[logs.length - 3].split(' ').splice(2).join(' ');
         }
+        setAlertState({
+          open: true,
+          message: 'Your vote failed :( Please try again!',
+          severity: 'error',
+        });
         setVotingActionInProgress(false);
       }
     },
@@ -444,6 +460,18 @@ const Home: NextPage = () => {
           })}
         </div>
       </main>
+      <Snackbar
+        open={alertState.open}
+        autoHideDuration={6000}
+        onClose={() => setAlertState({ ...alertState, open: false })}
+      >
+        <Alert
+          onClose={() => setAlertState({ ...alertState, open: false })}
+          severity={alertState.severity}
+        >
+          {alertState.message}
+        </Alert>
+      </Snackbar>
     </div>
   );
 };
