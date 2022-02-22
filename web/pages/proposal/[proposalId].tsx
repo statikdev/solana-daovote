@@ -329,9 +329,17 @@ const Home: NextPage = () => {
       <p className="mt-3">{proposalInfo?.description}</p>
       {proposalInfo?.documentProposalUri ? (
         <p>
-          <Link href={proposalInfo.documentProposalUri}>
-            → View Detailed Proposal
+          <Link href={proposalInfo.documentProposalUri} passHref>
+            <a
+              rel="noopener noreferrer"
+              target="_blank"
+              className="btn btn-primary"
+            >
+              → View Detailed Proposal
+            </a>
           </Link>
+          &nbsp;&nbsp;
+          <img src="/arweave.svg" height="32px" width="32px" alt="arweave" />
         </p>
       ) : null}
       <div className="row justify-content-end">
