@@ -235,6 +235,7 @@ const Home: NextPage = () => {
         );
 
         setVotingActionInProgress(false);
+        setSelectedNFTMintAddress(undefined);
         setAlertState({
           open: true,
           message: 'Congratulations! Your vote was recorded.',
