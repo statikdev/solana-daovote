@@ -1,6 +1,8 @@
 import type { NextPage } from 'next';
 import Head from 'next/head';
 import Image from 'next/image';
+import Link from 'next/link';
+
 import Base58 from 'bs58';
 import styles from '../../styles/Home.module.css';
 import BN from 'bn.js';
@@ -350,6 +352,13 @@ const Home: NextPage = () => {
         {proposalInfo?.proposalDate}
       </div>
       <p className="mt-3">{proposalInfo?.description}</p>
+      {proposalInfo?.documentProposalUri ? (
+        <p>
+          <Link href={proposalInfo.documentProposalUri}>
+            → View Detailed Proposal
+          </Link>
+        </p>
+      ) : null}
       <div className="row justify-content-end">
         <div className="col-4">
           <p className="fw-bold">{proposalInfo?.proposalEndDate}</p>
