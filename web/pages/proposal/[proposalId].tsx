@@ -412,7 +412,11 @@ const Home: NextPage = () => {
         <meta name="description" content="voting for DAOs on Solana" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-
+      <Link href="/" passHref>
+        <button type="button" className="btn btn-dark">
+        <i className="bi bi-arrow-left"></i> &nbsp;&nbsp;Go Back 
+        </button>
+      </Link>
       <main className={styles.main}>
         <h3 className="fw-normal text-center">Proposal {proposalId}</h3>
         {mainView}
