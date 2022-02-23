@@ -54,6 +54,15 @@ export default function NFTCards({
       <h3>Your Votes</h3>
       <div className="row gx-3 gy-3">
         {nftsWithMetadata.map((record: NFTWithMetadata) => {
+          const imageView = (
+            <img
+              src={record.imageUrl}
+              width="100px"
+              height="100px"
+              alt={record.name}
+            />
+          );
+
           const isAvailableForSelection = !unavailableNFTs.some(
             (nft: any) => nft === record.mintAddress
           );
@@ -89,12 +98,7 @@ export default function NFTCards({
               >
                 <div className="card-body">
                   <h5 className="card-title">{record.name}</h5>
-                  <Image
-                    src={record.imageUrl}
-                    width="100px"
-                    height="100px"
-                    alt={record.name}
-                  />
+                  {imageView}
                 </div>
                 <div className="card-footer bg-white">
                   <small className="text-dark">
