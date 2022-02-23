@@ -177,58 +177,63 @@ const Home: NextPage = () => {
     }
 
     return (
-      <div className="col-12">
+      <div className="col">
         <div className="card mb-4 rounded-3 shadow-sm">
           <div className="card-header py-3 text-white bg-dark">
             <h4 className="my-0 fw-normal">
-              <h3>
-                {proposal.info.prompt} #{proposalId}
-              </h3>
+              {proposal.info.prompt} #{proposalId}
             </h4>
-            <div className="d-flex justify-content-between">
-              <span className="badge bg-secondary mt-2 p-2">
+          </div>
+          <div className="card-body">
+            <div className="row">
+              <div className="col-sm-6">
+                <h3 className="card-title">
+                  {totalVotes} / {proposal.info.totalVotesAvailable}
+                  <small className="text-muted fw-light"> votes</small>
+                </h3>
+                <div className="progress">
+                  <div
+                    className="progress-bar"
+                    role="progressbar"
+                    aria-valuenow={totalVotePercentage}
+                    aria-valuemin={0}
+                    aria-valuemax={100}
+                  >
+                    &nbsp;&nbsp;{totalVotePercentageLabel}%&nbsp;&nbsp;
+                  </div>
+                </div>
+              </div>
+              <div className="col-sm-6 text-center">
+                <ul className="list-unstyled mt-3">
+                  {voteResultsCount.map(
+                    (voteOptionWithResult: VoteOptionWithResult) => {
+                      return (
+                        <li key={voteOptionWithResult.value}>
+                          <strong>{voteOptionWithResult.label}</strong> -{' '}
+                          <span className="font-monospace">
+                            {voteOptionWithResult.count}
+                          </span>
+                        </li>
+                      );
+                    }
+                  )}
+                </ul>
+              </div>
+            </div>
+          </div>
+          <div className="card-footer">
+            <div className="d-flex justify-content-between align-items-center">
+              <span className="badge bg-secondary p-2">
                 <i className="bi bi-calendar2-check me-2"></i>
                 {proposal.info?.proposalDate} - {proposal.info?.proposalEndDate}
               </span>
 
               <Link href={`/proposal/${proposalId}`} passHref>
                 <button type="button" className="btn btn-sm btn-primary">
-                  View Proposal <i className="bi bi-arrow-right-short"></i>
+                  &nbsp;&nbsp;View Details{' '}
+                  <i className="bi bi-arrow-right-short"></i>
                 </button>
               </Link>
-            </div>
-          </div>
-          <div className="card-body row">
-            <div className="col-sm-5">
-              <h1 className="card-title">
-                {totalVotes} / {proposal.info.totalVotesAvailable}
-                <small className="text-muted fw-light"> votes</small>
-              </h1>
-              <div className="progress">
-                <div
-                  className="progress-bar"
-                  role="progressbar"
-                  aria-valuenow={totalVotePercentage}
-                  aria-valuemin={0}
-                  aria-valuemax={100}
-                >
-                  &nbsp;&nbsp;{totalVotePercentageLabel}%&nbsp;&nbsp;
-                </div>
-              </div>
-            </div>
-            <div className="col-sm-5">
-              <ul className="list-unstyled mt-3 mb-4">
-                {voteResultsCount.map(
-                  (voteOptionWithResult: VoteOptionWithResult) => {
-                    return (
-                      <li key={voteOptionWithResult.value}>
-                        <b>Option: {voteOptionWithResult.label}</b> - Total:{' '}
-                        {voteOptionWithResult.count}
-                      </li>
-                    );
-                  }
-                )}
-              </ul>
             </div>
           </div>
         </div>
@@ -245,7 +250,7 @@ const Home: NextPage = () => {
       </Head>
 
       <main className={styles.main}>
-        <div className="p-3 pb-md-4 mx-auto text-center">
+        <div className="col-7 p-3 pb-md-4 mx-auto text-center">
           <h1 className="display-4 fw-normal">MonkeDao Vote</h1>
           <p className="fs-5 text-muted">
             Vote for proposals put forth by the MonkeDAO on-chain by connecting
@@ -255,13 +260,15 @@ const Home: NextPage = () => {
           </p>
         </div>
         <div className="row justify-content-start">
-          {proposals.map((proposal: any) => {
-            const filteredVotes = votes.filter(
-              (vote: any) => vote.id === proposal.proposalId
-            );
+          <div className="col-5 mx-auto">
+            {proposals.map((proposal: any) => {
+              const filteredVotes = votes.filter(
+                (vote: any) => vote.id === proposal.proposalId
+              );
 
-            return renderVotesForProposal(proposal, filteredVotes);
-          })}
+              return renderVotesForProposal(proposal, filteredVotes);
+            })}
+          </div>
         </div>
       </main>
     </div>
