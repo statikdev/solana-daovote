@@ -179,7 +179,7 @@ const Home: NextPage = () => {
     return (
       <div className="col">
         <div className="card mb-4 rounded-3 shadow-sm">
-          <div className="card-header py-3 text-white bg-dark">
+          <div className="card-header py-3 text-white bg-secondary bg-gradient">
             <h4 className="my-0 fw-normal">
               {proposal.info.prompt} #{proposalId}
             </h4>
@@ -223,7 +223,7 @@ const Home: NextPage = () => {
           </div>
           <div className="card-footer">
             <div className="d-flex justify-content-between align-items-center">
-              <span className="badge bg-secondary p-2">
+              <span className="badge bg-light text-secondary p-2">
                 <i className="bi bi-calendar2-check me-2"></i>
                 {proposal.info?.proposalDate} - {proposal.info?.proposalEndDate}
               </span>
