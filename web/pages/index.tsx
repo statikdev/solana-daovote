@@ -5,7 +5,7 @@ import Link from 'next/link';
 import styles from '../styles/Home.module.css';
 import BN from 'bn.js';
 import { useEffect, useState } from 'react';
-
+import { format } from 'date-fns';
 import { useConnection, useWallet } from '@solana/wallet-adapter-react';
 import { PublicKey } from '@solana/web3.js';
 
@@ -225,7 +225,15 @@ const Home: NextPage = () => {
             <div className="d-flex justify-content-between align-items-center">
               <span className="badge bg-light text-secondary p-2">
                 <i className="bi bi-calendar2-check me-2"></i>
-                {proposal.info?.proposalDate} - {proposal.info?.proposalEndDate}
+                {format(
+                  new Date(proposal.info?.proposalDate),
+                  'E MM/dd/yyyy'
+                )}{' '}
+                -{' '}
+                {format(
+                  new Date(proposal.info?.proposalEndDate),
+                  'E MM/dd/yyyy'
+                )}
               </span>
 
               <Link href={`/proposal/${proposalId}`} passHref>
