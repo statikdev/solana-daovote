@@ -38,7 +38,12 @@ const Home: NextPage = () => {
       const proposalAccounts = await connection.getProgramAccounts(
         VoteProgramAddressPubKey,
         {
-          filters: [{ dataSize: 148 }],
+          filters: [
+            { memcmp: { bytes: NFT_CREATOR_ADDRESS, offset: 116} },
+            {
+              dataSize: 148,
+            },
+          ],
         }
       );
 
