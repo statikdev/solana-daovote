@@ -259,10 +259,11 @@ const Home: NextPage = () => {
 
       <main className={styles.main}>
         <div className="col-7 p-3 pb-md-4 mx-auto text-center">
-          <h1 className="display-4 fw-normal">MonkeDao Vote</h1>
+          <h1 className="display-4 fw-normal">DAO Vote</h1>
           <p className="fs-5 text-muted">
-            Vote for proposals put forth by the MonkeDAO on-chain by connecting
-            your wallet. Have your voice be heard. Each SMB can vote once for a
+            Vote for proposals put forth by a DAO on-chain by connecting
+            your wallet.<br />
+            This is currently being used by MonkeDAO. Each SMB can vote once for a
             proposal, if you buy an SMB that has already voted on a particular
             proposal, you CANNOT vote again using it.
           </p>
