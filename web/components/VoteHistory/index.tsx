@@ -27,12 +27,7 @@ export default function VoteHistory({
       <tr key={d.time.toISOString()}>
         <td className="d-flex justify-content-center">
           {mintData && mintData.image && (
-            <Image
-              src={mintData.image}
-              width="45px"
-              height="45px"
-              alt={d.mint}
-            />
+            <img src={mintData.image} width="45px" height="45px" alt={d.mint} />
           )}
         </td>
         <td>
