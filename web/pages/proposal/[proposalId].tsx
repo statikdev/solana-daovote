@@ -30,7 +30,7 @@ const MetaplexMetadataProgramAddressPubKey = new PublicKey(
   METAPLEX_METADATA_PROGRAM_ADDRESS
 );
 
-const NFT_CREATOR_ADDRESS = '7V5HgodrUb1jebRpFDsxTnYMKvEbMvbpTLn9kCinHPdd';
+const NFT_CREATOR_ADDRESS = 'HwVd4cGeS5UQYv1cdZQS2X5ne45sTUYjujxLkiH5iBpp';
 const CreatorAddressPublicKey = new PublicKey(NFT_CREATOR_ADDRESS);
 
 const Home: NextPage = () => {
