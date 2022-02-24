@@ -53,12 +53,12 @@ export default function NFTCards({
 
   const selectAvailableNfts = () => {
     const notVotedNfts: any = [];
-    nftsWithMetadata.map(record => {
+    nftsWithMetadata.map((record) => {
       const isAvailable = !unavailableNFTs.some(
         (nft: any) => nft === record.mintAddress
       );
       isAvailable && notVotedNfts.push(record.mintAddress);
-    })
+    });
     onAllSelectAction(notVotedNfts);
   };
 
@@ -131,13 +131,28 @@ export default function NFTCards({
           );
         })}
       </div>
-      <button
-        type="button"
-        className="btn btn-dark mt-5 mb-5"
-        onClick={selectAvailableNfts}
-      >
-        Select All
-      </button>
+      <div className="row">
+        <div className="col-2">
+          <button
+            type="button"
+            className="btn btn-dark mt-3 mb-5"
+            onClick={selectAvailableNfts}
+          >
+            Select All
+          </button>
+        </div>
+        <div className="col-2">
+          <button
+            type="button"
+            className="btn btn-secondary mt-3 mb-5"
+            onClick={() => {
+              onAllSelectAction([]);
+            }}
+          >
+            Unselect All
+          </button>
+        </div>
+      </div>
     </>
   );
 }

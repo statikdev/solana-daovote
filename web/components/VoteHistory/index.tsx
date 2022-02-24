@@ -55,7 +55,7 @@ export default function VoteHistory({
 
   return (
     <>
-      <h3>All Votes</h3>
+      <h3 className='mt-5'>All Votes</h3>
       <table className="table table-sm table-light align-middle">
         <thead>
           <tr>
