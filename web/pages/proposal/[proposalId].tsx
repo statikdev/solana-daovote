@@ -101,7 +101,7 @@ const Home: NextPage = () => {
           info: proposalInfo!,
           url,
         });
-      } catch (e) {}
+      } catch (e) { }
 
       setIsLoadingProposal(false);
     }
@@ -132,9 +132,9 @@ const Home: NextPage = () => {
           time = new Date(
             new BN(
               e.account.data[104] +
-                (e.account.data[105] << 8) +
-                (e.account.data[106] << 16) +
-                (e.account.data[107] << 24)
+              (e.account.data[105] << 8) +
+              (e.account.data[106] << 16) +
+              (e.account.data[107] << 24)
             ).toNumber() * 1000
           ),
           vote_option = new BN(e.account.data.slice(108), 10, 'le').toString();
@@ -164,10 +164,8 @@ const Home: NextPage = () => {
       }
 
       setVotingActionInProgress(true);
-      const voteInstructions: TransactionInstruction[] = [];
-      console.log('mintTokenIds', mintTokenIds);
-
-      mintTokenIds.map(async (mintTokenId) => {
+      let voteInstructions: TransactionInstruction[] = [];
+      for (let mintTokenId of mintTokenIds) {
         const token_key = (
           await connection.getTokenLargestAccounts(mintTokenId)
         ).value[0].address;
@@ -197,10 +195,10 @@ const Home: NextPage = () => {
         const sys_key = new PublicKey('11111111111111111111111111111111');
 
         let account_0 = {
-            pubkey: publicKey,
-            isSigner: false,
-            isWritable: true,
-          },
+          pubkey: publicKey,
+          isSigner: false,
+          isWritable: true,
+        },
           account_1 = {
             pubkey: mintTokenId,
             isSigner: false,
@@ -236,16 +234,13 @@ const Home: NextPage = () => {
           ),
         });
         voteInstructions.push(instruction);
-      });
+      }
 
       let transaction = new Transaction();
-      console.log("voteInstructions\n", voteInstructions);
-
-      for (let ins = 0; ins < voteInstructions.length ; ins ++) {
-        console.log("ins\n", ins);
-        transaction.add(voteInstructions[ins]);
+      console.log("adding insructions", voteInstructions.length);
+      for (let ins of voteInstructions) {
+        transaction.add(ins);
       }
-      console.log('transaction', transaction);
 
       transaction.recentBlockhash = (
         await connection.getRecentBlockhash()
