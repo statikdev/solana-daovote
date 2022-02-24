@@ -13,6 +13,7 @@ import { Transaction, TransactionInstruction } from '@solana/web3.js';
 import { PublicKey } from '@solana/web3.js';
 import { Snackbar } from '@material-ui/core';
 import Alert from '@material-ui/lab/Alert';
+import { format } from 'date-fns';
 
 import NFTCards from '../../components/NFTCards';
 import VoteHistory from '../../components/VoteHistory';
@@ -23,7 +24,12 @@ import {
 import { toU64Le } from '../../utils';
 
 import { getNFTsForWallet, getNFTDataForMint } from '../../services/NFT';
-import { Proposal, ProposalInfo, VoteOption } from '../../types';
+import {
+  Proposal,
+  ProposalInfo,
+  VoteOption,
+  VoteOptionWithResult,
+} from '../../types';
 
 const VoteProgramAddressPubKey = new PublicKey(VOTE_PROGRAM_ADDRESS);
 const MetaplexMetadataProgramAddressPubKey = new PublicKey(
@@ -90,6 +96,7 @@ const Home: NextPage = () => {
         proposalInfo = JSON.parse(await proposalInfoRequest.text());
 
         setProposalInfo(proposalInfo);
+        console.log('proposalInfo', proposalInfo, votes);
         setProposal({
           id: proposalId,
           info: proposalInfo!,
@@ -319,6 +326,39 @@ const Home: NextPage = () => {
 
   const disableVoting = isVotingActionInProgress || !selectedNFTMintAddress;
 
+  const renderVoteData = (votes: any, proposal: any) => {
+    console.log('votes', votes, proposal);
+    const voteResultsCount = proposal.voteOptions.map(
+      (voteOption: VoteOption) => {
+        const voteOptionWithResults: VoteOptionWithResult = {
+          ...voteOption,
+          count: votes.filter((vote: any) => {
+            return Number(vote.vote_option) === voteOption.value;
+          }).length,
+        };
+
+        return voteOptionWithResults;
+      },
+      {}
+    );
+    return (
+      <div className="row">
+        <div className="col-6">
+          <p className="fw-bold">Total Votes: {votes.length}</p>
+        </div>
+        {voteResultsCount.map((voteOptionWithResult: VoteOptionWithResult) => {
+          return (
+            <div className="col-3"  key={voteOptionWithResult.value}>
+              <p>
+                {voteOptionWithResult.label} - {voteOptionWithResult.count}
+              </p>
+            </div>
+          );
+        })}
+      </div>
+    );
+  };
+
   const mainView = isLoadingProposal ? (
     <div className="spinner-border text-dark" role="status">
       <span className="visually-hidden">Loading...</span>
@@ -330,7 +370,7 @@ const Home: NextPage = () => {
       </h2>
       <div className="badge bg-secondary mt-2 p-2">
         <i className="bi bi-calendar2-check me-2"></i>
-        {proposalInfo?.proposalDate}
+        {format(new Date(proposalInfo?.proposalDate), 'E MM/dd/yyyy')}
       </div>
       {proposal?.url ? (
         <div className="">
@@ -358,12 +398,15 @@ const Home: NextPage = () => {
         </p>
       ) : null}
       <div className="row justify-content-end">
-        <div className="col-4">
-          <p className="fw-bold">{proposalInfo?.proposalEndDate}</p>
-        </div>
-        <div className="col-4">
-          <p className="fw-bold">Total Votes: {votes.length}</p>
-        </div>
+        {proposalInfo ? (
+          <div className="col-4">
+            <p className="fw-bold">
+              End Date:{' '}
+              {format(new Date(proposalInfo?.proposalEndDate), 'E MM/dd/yyyy')}
+            </p>
+          </div>
+        ) : null}
+        <div className="col-4">{renderVoteData(votes, proposalInfo)}</div>
       </div>
     </>
   );
@@ -414,7 +457,7 @@ const Home: NextPage = () => {
       </Head>
       <Link href="/" passHref>
         <button type="button" className="btn btn-dark">
-        <i className="bi bi-arrow-left"></i> &nbsp;&nbsp;Go Back 
+          <i className="bi bi-arrow-left"></i> &nbsp;&nbsp;Go Back
         </button>
       </Link>
       <main className={styles.main}>
