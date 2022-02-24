@@ -11,6 +11,7 @@ export default function NFTCards({
   connection,
   nftCreatorAddress,
   onSelectAction,
+  onAllSelectAction,
   selectedNFTMintAddress,
   unavailableNFTs,
   votes,
@@ -20,9 +21,10 @@ export default function NFTCards({
   connection: Connection;
   nftCreatorAddress: string;
   onSelectAction: (nftMintAddress: string) => void;
+  onAllSelectAction: (allAvailableNfts: []) => void;
   votes: Array<any>;
   voteOptions: Array<VoteOption> | undefined;
-  selectedNFTMintAddress?: string;
+  selectedNFTMintAddress?: Array<any>;
   unavailableNFTs: Array<string>;
   walletAddress: string;
 }) {
@@ -48,6 +50,17 @@ export default function NFTCards({
     }
     retrieve();
   }, [connection, nftCreatorAddress, walletAddress]);
+
+  const selectAvailableNfts = () => {
+    const notVotedNfts: any = [];
+    nftsWithMetadata.map((record) => {
+      const isAvailable = !unavailableNFTs.some(
+        (nft: any) => nft === record.mintAddress
+      );
+      isAvailable && notVotedNfts.push(record.mintAddress);
+    });
+    onAllSelectAction(notVotedNfts);
+  };
 
   return (
     <>
@@ -77,7 +90,11 @@ export default function NFTCards({
           const voteOptionLabel = voteOptions.find((voteOption: VoteOption) => {
             return voteOption.value === Number(voteForMint?.vote_option);
           })?.label;
-          if (selectedNFTMintAddress === record.mintAddress) {
+          if (
+            selectedNFTMintAddress?.find(
+              (currentRecord) => currentRecord === record?.mintAddress
+            )
+          ) {
             selectedCard = 'border-success border-4';
           }
           return (
@@ -113,6 +130,28 @@ export default function NFTCards({
             </div>
           );
         })}
+      </div>
+      <div className="row">
+        <div className="col-2">
+          <button
+            type="button"
+            className="btn btn-dark mt-3 mb-5"
+            onClick={selectAvailableNfts}
+          >
+            Select All
+          </button>
+        </div>
+        <div className="col-2">
+          <button
+            type="button"
+            className="btn btn-secondary mt-3 mb-5"
+            onClick={() => {
+              onAllSelectAction([]);
+            }}
+          >
+            Unselect All
+          </button>
+        </div>
       </div>
     </>
   );
