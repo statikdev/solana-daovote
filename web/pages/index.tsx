@@ -39,7 +39,7 @@ const Home: NextPage = () => {
         VoteProgramAddressPubKey,
         {
           filters: [
-            { memcmp: { bytes: NFT_CREATOR_ADDRESS, offset: 116} },
+            { memcmp: { bytes: NFT_CREATOR_ADDRESS, offset: 116 } },
             {
               dataSize: 148,
             },
@@ -144,8 +144,6 @@ const Home: NextPage = () => {
   }, {});
 
   function renderVotesForProposal(proposal: Proposal, votes: any) {
-    console.log('propose', proposal.id, votes);
-
     const totalVotes = votes.filter(
       (vote: any) => vote.vote === proposal.id
     ).length;
@@ -261,22 +259,29 @@ const Home: NextPage = () => {
         <div className="col-7 p-3 pb-md-4 mx-auto text-center">
           <h1 className="display-4 fw-normal">DAO Vote</h1>
           <p className="fs-5 text-muted">
-            Vote for proposals put forth by a DAO on-chain by connecting
-            your wallet.<br />
-            This is currently being used by MonkeDAO. Each SMB can vote once for a
-            proposal, if you buy an SMB that has already voted on a particular
+            Vote for proposals put forth by a DAO on-chain by connecting your
+            wallet.
+            <br />
+            This is currently being used by MonkeDAO. Each SMB can vote once for
+            a proposal, if you buy an SMB that has already voted on a particular
             proposal, you CANNOT vote again using it.
           </p>
         </div>
         <div className="row justify-content-start">
           <div className="col-5 mx-auto">
-            {proposals.map((proposal: any) => {
-              const filteredVotes = votes.filter(
-                (vote: any) => vote.id === proposal.proposalId
-              );
+            {proposals
+              .sort(
+                (a: Proposal, b: Proposal) =>
+                  Date.parse(a.info.proposalDate) -
+                  Date.parse(b.info.proposalDate)
+              )
+              .map((proposal: any) => {
+                const filteredVotes = votes.filter(
+                  (vote: any) => vote.id === proposal.proposalId
+                );
 
-              return renderVotesForProposal(proposal, filteredVotes);
-            })}
+                return renderVotesForProposal(proposal, filteredVotes);
+              })}
           </div>
         </div>
       </main>
