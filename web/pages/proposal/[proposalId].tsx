@@ -51,8 +51,8 @@ const Home: NextPage = () => {
   const [votes, setVotes] = useState<any>([]);
   const [nftImagesToShow, setNFTImagesToShow] = useState<any>([]);
   const [selectedNFTMintAddress, setSelectedNFTMintAddress] = useState<
-    string | undefined
-  >(undefined);
+    Array<any>
+  >([]);
   const [proposalInfo, setProposalInfo] = useState<ProposalInfo | null>(null);
   const [proposal, setProposal] = useState<Proposal | null>(null);
   const [isLoadingProposal, setIsLoadingProposal] = useState<Boolean>(false);
@@ -96,7 +96,6 @@ const Home: NextPage = () => {
         proposalInfo = JSON.parse(await proposalInfoRequest.text());
 
         setProposalInfo(proposalInfo);
-        console.log('proposalInfo', proposalInfo, votes);
         setProposal({
           id: proposalId,
           info: proposalInfo!,
@@ -159,78 +158,94 @@ const Home: NextPage = () => {
   }, [connection, publicKey, isVotingActionInProgress]);
 
   const castVote = useCallback(
-    async (mintTokenId: PublicKey, voteId: number, vote: number) => {
+    async (mintTokenIds: PublicKey[], voteId: number, vote: number) => {
       if (!publicKey) {
         return;
       }
 
       setVotingActionInProgress(true);
+      const voteInstructions: TransactionInstruction[] = [];
+      console.log('mintTokenIds', mintTokenIds);
 
-      const token_key = (await connection.getTokenLargestAccounts(mintTokenId))
-        .value[0].address;
+      mintTokenIds.map(async (mintTokenId) => {
+        const token_key = (
+          await connection.getTokenLargestAccounts(mintTokenId)
+        ).value[0].address;
 
-      console.log(token_key.toString());
-      const meta_key = (
-        await PublicKey.findProgramAddress(
-          [
-            new Uint8Array([109, 101, 116, 97, 100, 97, 116, 97]),
-            MetaplexMetadataProgramAddressPubKey.toBuffer(),
-            mintTokenId.toBuffer(),
-          ],
-          MetaplexMetadataProgramAddressPubKey
-        )
-      )[0];
-      const auth_key = (
-        await PublicKey.findProgramAddress(
-          [mintTokenId.toBuffer(), toU64Le(voteId)],
-          VoteProgramAddressPubKey
-        )
-      )[0];
-      const vote_auth_key = (
-        await PublicKey.findProgramAddress(
-          [CreatorAddressPublicKey.toBuffer(), toU64Le(voteId)],
-          VoteProgramAddressPubKey
-        )
-      )[0];
-      const sys_key = new PublicKey('11111111111111111111111111111111');
-
-      let account_0 = {
-          pubkey: publicKey,
-          isSigner: false,
-          isWritable: true,
-        },
-        account_1 = { pubkey: mintTokenId, isSigner: false, isWritable: false },
-        account_2 = { pubkey: token_key, isSigner: false, isWritable: false },
-        account_3 = { pubkey: meta_key, isSigner: false, isWritable: false },
-        account_4 = { pubkey: auth_key, isSigner: false, isWritable: true },
-        account_5 = { pubkey: sys_key, isSigner: false, isWritable: false },
-        account_6 = {
-          pubkey: vote_auth_key,
-          isSigner: false,
-          isWritable: false,
-        };
-
-      const instruction = new TransactionInstruction({
-        keys: [
-          account_0,
-          account_1,
-          account_2,
-          account_3,
-          account_4,
-          account_5,
-          account_6,
-        ],
-        programId: VoteProgramAddressPubKey,
-        data: Buffer.from(
-          new Uint8Array(
-            [1]
-              .concat(Array.from(toU64Le(voteId)))
-              .concat(Array.from(toU64Le(vote)))
+        const meta_key = (
+          await PublicKey.findProgramAddress(
+            [
+              new Uint8Array([109, 101, 116, 97, 100, 97, 116, 97]),
+              MetaplexMetadataProgramAddressPubKey.toBuffer(),
+              mintTokenId.toBuffer(),
+            ],
+            MetaplexMetadataProgramAddressPubKey
           )
-        ),
+        )[0];
+        const auth_key = (
+          await PublicKey.findProgramAddress(
+            [mintTokenId.toBuffer(), toU64Le(voteId)],
+            VoteProgramAddressPubKey
+          )
+        )[0];
+        const vote_auth_key = (
+          await PublicKey.findProgramAddress(
+            [CreatorAddressPublicKey.toBuffer(), toU64Le(voteId)],
+            VoteProgramAddressPubKey
+          )
+        )[0];
+        const sys_key = new PublicKey('11111111111111111111111111111111');
+
+        let account_0 = {
+            pubkey: publicKey,
+            isSigner: false,
+            isWritable: true,
+          },
+          account_1 = {
+            pubkey: mintTokenId,
+            isSigner: false,
+            isWritable: false,
+          },
+          account_2 = { pubkey: token_key, isSigner: false, isWritable: false },
+          account_3 = { pubkey: meta_key, isSigner: false, isWritable: false },
+          account_4 = { pubkey: auth_key, isSigner: false, isWritable: true },
+          account_5 = { pubkey: sys_key, isSigner: false, isWritable: false },
+          account_6 = {
+            pubkey: vote_auth_key,
+            isSigner: false,
+            isWritable: false,
+          };
+
+        const instruction = new TransactionInstruction({
+          keys: [
+            account_0,
+            account_1,
+            account_2,
+            account_3,
+            account_4,
+            account_5,
+            account_6,
+          ],
+          programId: VoteProgramAddressPubKey,
+          data: Buffer.from(
+            new Uint8Array(
+              [1]
+                .concat(Array.from(toU64Le(voteId)))
+                .concat(Array.from(toU64Le(vote)))
+            )
+          ),
+        });
+        voteInstructions.push(instruction);
       });
 
-      let transaction = new Transaction().add(instruction);
+      let transaction = new Transaction();
+      console.log("voteInstructions\n", voteInstructions);
+
+      for (let ins = 0; ins < voteInstructions.length ; ins ++) {
+        console.log("ins\n", ins);
+        transaction.add(voteInstructions[ins]);
+      }
+      console.log('transaction', transaction);
 
       transaction.recentBlockhash = (
         await connection.getRecentBlockhash()
@@ -241,16 +256,13 @@ const Home: NextPage = () => {
         const signature = await sendTransaction(transaction, connection, {
           skipPreflight: true,
         });
-
-        console.log('Tx Id: ', signature);
-
         const result = await connection.confirmTransaction(
           signature,
           'finalized'
         );
 
         setVotingActionInProgress(false);
-        setSelectedNFTMintAddress(undefined);
+        setSelectedNFTMintAddress([]);
         setAlertState({
           open: true,
           message: 'Congratulations! Your vote was recorded.',
@@ -305,18 +317,25 @@ const Home: NextPage = () => {
 
   const nftsForCreatorInWallet =
     (publicKey && (
-      <NFTCards
-        connection={connection}
-        nftCreatorAddress={NFT_CREATOR_ADDRESS}
-        onSelectAction={(newSelectedNFTMintAddress) =>
-          setSelectedNFTMintAddress(newSelectedNFTMintAddress)
-        }
-        votes={votes}
-        voteOptions={proposalInfo?.voteOptions || []}
-        selectedNFTMintAddress={selectedNFTMintAddress}
-        unavailableNFTs={unavailableNFTs}
-        walletAddress={publicKey.toString()}
-      />
+      <>
+        <NFTCards
+          connection={connection}
+          nftCreatorAddress={NFT_CREATOR_ADDRESS}
+          onSelectAction={(selectedNFTMintAddress) => {
+            const newSelectedNFTMintAddress = [];
+            newSelectedNFTMintAddress.push(selectedNFTMintAddress);
+            setSelectedNFTMintAddress(newSelectedNFTMintAddress);
+          }}
+          onAllSelectAction={(allAvailableNfts) => {
+            setSelectedNFTMintAddress(allAvailableNfts);
+          }}
+          votes={votes}
+          voteOptions={proposalInfo?.voteOptions || []}
+          selectedNFTMintAddress={selectedNFTMintAddress}
+          unavailableNFTs={unavailableNFTs}
+          walletAddress={publicKey.toString()}
+        />
+      </>
     )) ||
     null;
 
@@ -327,7 +346,6 @@ const Home: NextPage = () => {
   const disableVoting = isVotingActionInProgress || !selectedNFTMintAddress;
 
   const renderVoteData = (votes: any, proposal: any) => {
-    console.log('votes', votes, proposal);
     const voteResultsCount = proposal?.voteOptions.map(
       (voteOption: VoteOption) => {
         const voteOptionWithResults: VoteOptionWithResult = {
@@ -346,15 +364,16 @@ const Home: NextPage = () => {
         <div className="col-6">
           <p className="fw-bold">Total Votes: {votes.length}</p>
         </div>
-        { voteResultsCount && voteResultsCount.map((voteOptionWithResult: VoteOptionWithResult) => {
-          return (
-            <div className="col-3"  key={voteOptionWithResult.value}>
-              <p>
-                {voteOptionWithResult.label} - {voteOptionWithResult.count}
-              </p>
-            </div>
-          );
-        })}
+        {voteResultsCount &&
+          voteResultsCount.map((voteOptionWithResult: VoteOptionWithResult) => {
+            return (
+              <div className="col-3" key={voteOptionWithResult.value}>
+                <p>
+                  {voteOptionWithResult.label} - {voteOptionWithResult.count}
+                </p>
+              </div>
+            );
+          })}
       </div>
     );
   };
@@ -368,10 +387,12 @@ const Home: NextPage = () => {
       <h2 className="text-center">
         {proposalInfo?.prompt || 'Unable to load'}
       </h2>
-      {proposalInfo ? ( <div className="badge bg-secondary mt-2 p-2">
-        <i className="bi bi-calendar2-check me-2"></i>
-        {format(new Date(proposalInfo?.proposalDate), 'E MM/dd/yyyy')}
-      </div>) : null}
+      {proposalInfo ? (
+        <div className="badge bg-secondary mt-2 p-2">
+          <i className="bi bi-calendar2-check me-2"></i>
+          {format(new Date(proposalInfo?.proposalDate), 'E MM/dd/yyyy')}
+        </div>
+      ) : null}
       {proposal?.url ? (
         <div className="">
           <Link href={proposal?.url} passHref>
@@ -433,9 +454,8 @@ const Home: NextPage = () => {
               if (disableVoting) {
                 return;
               }
-
               castVote(
-                new PublicKey(selectedNFTMintAddress),
+                selectedNFTMintAddress.map((mintId) => new PublicKey(mintId)),
                 +proposalId,
                 voteOption.value
               );
