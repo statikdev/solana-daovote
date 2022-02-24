@@ -328,7 +328,7 @@ const Home: NextPage = () => {
 
   const renderVoteData = (votes: any, proposal: any) => {
     console.log('votes', votes, proposal);
-    const voteResultsCount = proposal.voteOptions.map(
+    const voteResultsCount = proposal?.voteOptions.map(
       (voteOption: VoteOption) => {
         const voteOptionWithResults: VoteOptionWithResult = {
           ...voteOption,
@@ -346,7 +346,7 @@ const Home: NextPage = () => {
         <div className="col-6">
           <p className="fw-bold">Total Votes: {votes.length}</p>
         </div>
-        {voteResultsCount.map((voteOptionWithResult: VoteOptionWithResult) => {
+        { voteResultsCount && voteResultsCount.map((voteOptionWithResult: VoteOptionWithResult) => {
           return (
             <div className="col-3"  key={voteOptionWithResult.value}>
               <p>
@@ -368,10 +368,10 @@ const Home: NextPage = () => {
       <h2 className="text-center">
         {proposalInfo?.prompt || 'Unable to load'}
       </h2>
-      <div className="badge bg-secondary mt-2 p-2">
+      {proposalInfo ? ( <div className="badge bg-secondary mt-2 p-2">
         <i className="bi bi-calendar2-check me-2"></i>
         {format(new Date(proposalInfo?.proposalDate), 'E MM/dd/yyyy')}
-      </div>
+      </div>) : null}
       {proposal?.url ? (
         <div className="">
           <Link href={proposal?.url} passHref>
