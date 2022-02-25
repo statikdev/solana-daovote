@@ -175,9 +175,12 @@ const Home: NextPage = () => {
       <div className="col">
         <div className="card mb-4 rounded-3 shadow-sm">
           <div className="card-header py-3 text-white bg-dark">
-            <h4 className="my-0 fw-normal">
-              {proposal.info.prompt} #{proposalId}
-            </h4>
+            <h5>
+              <span className="badge bg-light text-dark font-weight-bold pl-5">
+                Proposal #{proposalId}
+              </span>
+            </h5>
+            <h4 className="my-0 fw-normal">{proposal.info.prompt}</h4>
           </div>
           <div className="card-body">
             <div className="row">
