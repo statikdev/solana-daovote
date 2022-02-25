@@ -10,7 +10,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import { useConnection, useWallet } from '@solana/wallet-adapter-react';
 import { Transaction, TransactionInstruction } from '@solana/web3.js';
-import { PublicKey } from '@solana/web3.js';
+import { PublicKey, sendAndConfirmRawTransaction } from '@solana/web3.js';
 import { Snackbar } from '@material-ui/core';
 import Alert from '@material-ui/lab/Alert';
 import { format } from 'date-fns';
@@ -42,7 +42,7 @@ const CreatorAddressPublicKey = new PublicKey(NFT_CREATOR_ADDRESS);
 
 const Home: NextPage = () => {
   const { connection } = useConnection();
-  const { publicKey, sendTransaction } = useWallet();
+  const { publicKey, sendTransaction, signAllTransactions } = useWallet();
   const [availableNfts, setAvailableNFTs] = useState<any>([]);
 
   const isConnected = !!publicKey;
@@ -102,7 +102,7 @@ const Home: NextPage = () => {
           info: proposalInfo!,
           url,
         });
-      } catch (e) {}
+      } catch (e) { }
 
       setIsLoadingProposal(false);
     }
@@ -133,9 +133,9 @@ const Home: NextPage = () => {
           time = new Date(
             new BN(
               e.account.data[104] +
-                (e.account.data[105] << 8) +
-                (e.account.data[106] << 16) +
-                (e.account.data[107] << 24)
+              (e.account.data[105] << 8) +
+              (e.account.data[106] << 16) +
+              (e.account.data[107] << 24)
             ).toNumber() * 1000
           ),
           vote_option = new BN(e.account.data.slice(108), 10, 'le').toString();
@@ -196,10 +196,10 @@ const Home: NextPage = () => {
         const sys_key = new PublicKey('11111111111111111111111111111111');
 
         let account_0 = {
-            pubkey: publicKey,
-            isSigner: false,
-            isWritable: true,
-          },
+          pubkey: publicKey,
+          isSigner: false,
+          isWritable: true,
+        },
           account_1 = {
             pubkey: mintTokenId,
             isSigner: false,
@@ -241,50 +241,70 @@ const Home: NextPage = () => {
         { length: Math.ceil(voteInstructions.length / 5) },
         (v, i) => voteInstructions.slice(i * 5, i * 5 + 5)
       );
-      console.log('chunkedInstructions', chunkedInstructions);
-
+      const transactionArr: Transaction[] = [];
       for (let txns of chunkedInstructions) {
         let transaction = new Transaction();
         for (let ins of txns) {
           transaction.add(ins);
         }
-
         transaction.recentBlockhash = (
           await connection.getRecentBlockhash()
         ).blockhash;
         transaction.feePayer = publicKey;
-
+        transactionArr.push(transaction);
+      }
+      if (signAllTransactions) {
         try {
-          const signature = await sendTransaction(transaction, connection, {
-            skipPreflight: true,
-          });
-          const result = await connection.confirmTransaction(
-            signature,
-            'finalized'
-          );
-
-          setVotingActionInProgress(false);
-          setSelectedNFTMintAddress([]);
-          setAlertState({
-            open: true,
-            message: 'Congratulations! Your vote was recorded.',
-            severity: 'success',
-          });
-        } catch (e: any) {
-          const logs = e?.logs;
-          let error = 'Unknown error occurred.';
-          console.log(e);
-          if (logs) {
-            error = logs[logs.length - 3].split(' ').splice(2).join(' ');
-          }
+          const txns = await signAllTransactions(transactionArr);
+          const sendAndConfrimPromises = txns.map(txn => sendAndConfirmRawTransaction(connection, txn.serialize(), { skipPreflight: true, maxRetries: 2, commitment: 'finalized' }));
+          const result = await Promise.all(sendAndConfrimPromises);
+          console.log(result);
+        }
+        catch (err: any) {
+          console.log(err);
           setAlertState({
             open: true,
             message: 'Your vote failed :( Please try again!',
             severity: 'error',
           });
+          setVotingActionInProgress(false);
         }
-        setVotingActionInProgress(false);
       }
+      else {
+        for (let transaction of transactionArr) {
+          try {
+            const signature = await sendTransaction(transaction, connection, {
+              skipPreflight: true,
+            });
+            const result = await connection.confirmTransaction(
+              signature,
+              'finalized'
+            );
+
+          } catch (e: any) {
+            const logs = e?.logs;
+            let error = 'Unknown error occurred.';
+            console.log(e);
+            if (logs) {
+              error = logs[logs.length - 3].split(' ').splice(2).join(' ');
+            }
+            setAlertState({
+              open: true,
+              message: 'Your vote failed :( Please try again!',
+              severity: 'error',
+            });
+            setVotingActionInProgress(false);
+          }
+        }
+      }
+
+      setVotingActionInProgress(false);
+      setSelectedNFTMintAddress([]);
+      setAlertState({
+        open: true,
+        message: 'Congratulations! Your vote was recorded.',
+        severity: 'success',
+      });
     },
     [connection, publicKey]
   );
