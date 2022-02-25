@@ -17,10 +17,11 @@ import { clusterApiUrl } from '@solana/web3.js';
 import { AppProps } from 'next/app';
 import { FC, useMemo } from 'react';
 import Layout from '../components/Layout';
-import 'bootstrap/dist/css/bootstrap.css';
-import 'bootstrap-icons/font/bootstrap-icons.css';
 import Head from 'next/head';
+
 // Use require instead of import since order matters
+require('bootstrap/dist/css/bootstrap.css');
+require('bootstrap-icons/font/bootstrap-icons.css');
 require('@solana/wallet-adapter-react-ui/styles.css');
 require('../styles/globals.css');
 
