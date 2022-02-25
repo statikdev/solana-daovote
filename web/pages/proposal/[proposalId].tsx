@@ -14,6 +14,7 @@ import { PublicKey, sendAndConfirmRawTransaction } from '@solana/web3.js';
 import { Snackbar } from '@material-ui/core';
 import Alert from '@material-ui/lab/Alert';
 import { format } from 'date-fns';
+import Countdown, { CountdownRendererFn } from 'react-countdown';
 
 import NFTCards from '../../components/NFTCards';
 import VoteHistory from '../../components/VoteHistory';
@@ -39,6 +40,33 @@ const MetaplexMetadataProgramAddressPubKey = new PublicKey(
 
 const NFT_CREATOR_ADDRESS = '9uBX3ASjxWvNBAD1xjbVaKA74mWGZys3RGSF7DdeDD3F';
 const CreatorAddressPublicKey = new PublicKey(NFT_CREATOR_ADDRESS);
+
+const renderer: CountdownRendererFn = ({
+  days,
+  hours,
+  minutes,
+  seconds,
+}: {
+  days: number;
+  hours: number;
+  minutes: number;
+  seconds: number;
+}) => {
+  if (days <= 0 && hours <= 0 && minutes <= 0 && seconds <= 0) {
+    return null;
+  }
+
+  return (
+    <div className="mt-5 d-flex justify-content-center">
+      <h3>
+        <div className="alert alert-secondary" role="alert">
+          Voting Opens in{' '}
+          {hours + ' hours ' + minutes + ' minutes ' + seconds + ' seconds '}
+        </div>
+      </h3>
+    </div>
+  );
+};
 
 const Home: NextPage = () => {
   const { connection } = useConnection();
@@ -513,6 +541,14 @@ const Home: NextPage = () => {
           </div>
         )) ||
           null}
+
+        {isLoadingProposal ? (
+          ''
+        ) : (
+          <div>
+            <Countdown renderer={renderer} date={proposalInfo?.proposalDate!} />
+          </div>
+        )}
 
         {isLoadingVotes ? (
           <div className="spinner-border text-dark mt-5" role="status">
