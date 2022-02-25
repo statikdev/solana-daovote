@@ -5,12 +5,8 @@ html,
 body {
   padding: 0;
   margin: 0;
-  font-family: "Open Sans", sans-serif;
-  background-color: #FEF6D8;
-}
-
-h1, h2, h3, h4, h5 {
-  font-family: "Poppins", sans-serif;
+  font-family: 'Open Sans', sans-serif !important;
+  background-color: #fef6d8 !important;
 }
 
 a {
@@ -23,6 +19,6 @@ a {
 }
 
 .wallet-adapter-button {
-  background-color: #F4BE00 !important;
+  background-color: #f4be00 !important;
   color: black !important;
 }
