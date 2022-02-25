@@ -30,6 +30,7 @@ import {
   VoteOption,
   VoteOptionWithResult,
 } from '../../types';
+import { arrayBuffer } from 'stream/consumers';
 
 const VoteProgramAddressPubKey = new PublicKey(VOTE_PROGRAM_ADDRESS);
 const MetaplexMetadataProgramAddressPubKey = new PublicKey(
@@ -101,7 +102,7 @@ const Home: NextPage = () => {
           info: proposalInfo!,
           url,
         });
-      } catch (e) { }
+      } catch (e) {}
 
       setIsLoadingProposal(false);
     }
@@ -132,9 +133,9 @@ const Home: NextPage = () => {
           time = new Date(
             new BN(
               e.account.data[104] +
-              (e.account.data[105] << 8) +
-              (e.account.data[106] << 16) +
-              (e.account.data[107] << 24)
+                (e.account.data[105] << 8) +
+                (e.account.data[106] << 16) +
+                (e.account.data[107] << 24)
             ).toNumber() * 1000
           ),
           vote_option = new BN(e.account.data.slice(108), 10, 'le').toString();
@@ -195,10 +196,10 @@ const Home: NextPage = () => {
         const sys_key = new PublicKey('11111111111111111111111111111111');
 
         let account_0 = {
-          pubkey: publicKey,
-          isSigner: false,
-          isWritable: true,
-        },
+            pubkey: publicKey,
+            isSigner: false,
+            isWritable: true,
+          },
           account_1 = {
             pubkey: mintTokenId,
             isSigner: false,
@@ -236,45 +237,52 @@ const Home: NextPage = () => {
         voteInstructions.push(instruction);
       }
 
-      let transaction = new Transaction();
-      console.log("adding insructions", voteInstructions.length);
-      for (let ins of voteInstructions) {
-        transaction.add(ins);
-      }
+      const chunkedInstructions = Array.from(
+        { length: Math.ceil(voteInstructions.length / 5) },
+        (v, i) => voteInstructions.slice(i * 5, i * 5 + 5)
+      );
+      console.log('chunkedInstructions', chunkedInstructions);
 
-      transaction.recentBlockhash = (
-        await connection.getRecentBlockhash()
-      ).blockhash;
-      transaction.feePayer = publicKey;
-
-      try {
-        const signature = await sendTransaction(transaction, connection, {
-          skipPreflight: true,
-        });
-        const result = await connection.confirmTransaction(
-          signature,
-          'finalized'
-        );
-
-        setVotingActionInProgress(false);
-        setSelectedNFTMintAddress([]);
-        setAlertState({
-          open: true,
-          message: 'Congratulations! Your vote was recorded.',
-          severity: 'success',
-        });
-      } catch (e: any) {
-        const logs = e?.logs;
-        let error = 'Unknown error occurred.';
-        console.log(e);
-        if (logs) {
-          error = logs[logs.length - 3].split(' ').splice(2).join(' ');
+      for (let txns of chunkedInstructions) {
+        let transaction = new Transaction();
+        for (let ins of txns) {
+          transaction.add(ins);
         }
-        setAlertState({
-          open: true,
-          message: 'Your vote failed :( Please try again!',
-          severity: 'error',
-        });
+
+        transaction.recentBlockhash = (
+          await connection.getRecentBlockhash()
+        ).blockhash;
+        transaction.feePayer = publicKey;
+
+        try {
+          const signature = await sendTransaction(transaction, connection, {
+            skipPreflight: true,
+          });
+          const result = await connection.confirmTransaction(
+            signature,
+            'finalized'
+          );
+
+          setVotingActionInProgress(false);
+          setSelectedNFTMintAddress([]);
+          setAlertState({
+            open: true,
+            message: 'Congratulations! Your vote was recorded.',
+            severity: 'success',
+          });
+        } catch (e: any) {
+          const logs = e?.logs;
+          let error = 'Unknown error occurred.';
+          console.log(e);
+          if (logs) {
+            error = logs[logs.length - 3].split(' ').splice(2).join(' ');
+          }
+          setAlertState({
+            open: true,
+            message: 'Your vote failed :( Please try again!',
+            severity: 'error',
+          });
+        }
         setVotingActionInProgress(false);
       }
     },

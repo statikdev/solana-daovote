@@ -101,8 +101,6 @@ export default function NFTCards({
             <div
               className="col-4"
               key={record.mintAddress}
-              d-flex
-              align-items-stretch
             >
               <div
                 className={`card ${selectedCard} ${hasVotedCard}`}

@@ -24,7 +24,7 @@ export default function VoteHistory({
       (voteOption: any) => voteOption.value === Number(d.vote_option)
     );
     return (
-      <tr key={d.time.toISOString()}>
+      <tr key={d.mint}>
         <td className="d-flex justify-content-center">
           {mintData && mintData.image && (
             <img src={mintData.image} width="45px" height="45px" alt={d.mint} />
