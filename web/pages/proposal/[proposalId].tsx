@@ -396,8 +396,11 @@ const Home: NextPage = () => {
 
   const disableVoting = isVotingActionInProgress || !selectedNFTMintAddress;
 
-  const renderVoteData = (votes: any, proposal: any) => {
-    const voteResultsCount = proposal?.voteOptions.map(
+  const renderVoteData = (votes: any, proposalInfo?: ProposalInfo) => {
+    if (!proposalInfo) {
+      return null;
+    }
+    const voteResultsCount = proposalInfo?.voteOptions.map(
       (voteOption: VoteOption) => {
         const voteOptionWithResults: VoteOptionWithResult = {
           ...voteOption,
@@ -410,93 +413,123 @@ const Home: NextPage = () => {
       },
       {}
     );
+
+    const totalVotePercentage =
+      Number(votes.length / proposalInfo.totalVotesAvailable) * 100;
+    const totalVotePercentageLabel =
+      totalVotePercentage < 1 ? '<1%' : `${totalVotePercentage}%`;
+
     return (
       <div className="row">
-        <div className="col-6">
-          <p className="fw-bold">Total Votes: {votes.length}</p>
+        <div className="col-sm-6">
+          <h3 className="card-title">
+            {votes.length} / {proposalInfo.totalVotesAvailable}
+            <small className="text-muted fw-light"> votes</small>
+          </h3>
+          <div className="progress">
+            <div
+              className="progress-bar"
+              role="progressbar"
+              style={{
+                width: `${totalVotePercentage}%`,
+              }}
+              aria-valuenow={totalVotePercentage}
+              aria-valuemin={0}
+              aria-valuemax={100}
+            ></div>
+          </div>
         </div>
-        {voteResultsCount &&
-          voteResultsCount.map((voteOptionWithResult: VoteOptionWithResult) => {
-            return (
-              <div className="col-3" key={voteOptionWithResult.value}>
-                <p>
-                  {voteOptionWithResult.label} - {voteOptionWithResult.count}
-                </p>
-              </div>
-            );
-          })}
+        <div className="col-sm-6 d-flex">
+          <div className="w-50 d-flex justify-content-center align-items-center">
+            <h2 className="">{totalVotePercentageLabel}</h2>
+          </div>
+          <ul className="list-unstyled mt-3 text-right">
+            {voteResultsCount.map(
+              (voteOptionWithResult: VoteOptionWithResult) => {
+                return (
+                  <li key={voteOptionWithResult.value}>
+                    <strong>{voteOptionWithResult.label}</strong> -{' '}
+                    <span className="font-monospace">
+                      {voteOptionWithResult.count}
+                    </span>
+                  </li>
+                );
+              }
+            )}
+          </ul>
+        </div>
       </div>
     );
   };
 
-  const mainView = isLoadingProposal ? (
-    <div className="spinner-border text-dark" role="status">
-      <span className="visually-hidden">Loading...</span>
-    </div>
-  ) : (
-    <>
-      <div className="mb-2">
-        <Link href="/" passHref>
-          <a className="text-dark ">
-          ← &nbsp;&nbsp;Go Back
-          </a>
-        </Link>
+  const mainView =
+    isLoadingProposal || !proposalInfo ? (
+      <div className="spinner-border text-dark" role="status">
+        <span className="visually-hidden">Loading...</span>
       </div>
-      <div className="row g-0 border bg-white rounded overflow-hidden flex-md-row mb-4 shadow-sm h-md-250 position-relative">
-        <div className="col p-4 d-flex flex-column position-static">
-          <div className="d-inline-block  mb-2 ">
-            <h4>
-              <span className="badge bg-light text-dark font-weight-bold pl-5">
-                Proposal #{proposalId}
-              </span>
-            </h4>
-          </div>
-          <h3 className="mb-0">{proposalInfo?.prompt || 'Unable to load'}</h3>
-          <div className="mb-1 text-muted">
-            {proposalInfo ? (
-              <div className="badge bg-light text-dark mt-2 p-2">
-                <i className="bi bi-calendar2-check me-2"></i>
-                {format(new Date(proposalInfo?.proposalDate), 'E MM/dd/yyyy')}
-              </div>
-            ) : null}
-          </div>
-          <p className="mb-auto mt-3">{proposalInfo?.description}</p>
-          {proposalInfo?.documentProposalUri ? (
-            <div className="mt-5 d-flex justify-content-end">
-              <Link href={proposalInfo.documentProposalUri} passHref>
-                <a
-                  rel="noopener noreferrer"
-                  target="_blank"
-                  className="btn btn-primary"
-                >
-                  → View Detailed Proposal
-                </a>
-              </Link>
-              &nbsp;&nbsp;
-              <img
-                src="/arweave.svg"
-                height="32px"
-                width="32px"
-                alt="arweave"
-              />
-            </div>
-          ) : null}
+    ) : (
+      <>
+        <div className="mb-2">
+          <Link href="/" passHref>
+            <a className="text-dark ">← &nbsp;&nbsp;Go Back</a>
+          </Link>
         </div>
-        <div className="col-auto d-none d-lg-block"></div>
-      </div>
-      <div className="row justify-content-end">
-        {proposalInfo ? (
-          <div className="col-4">
-            <p className="fw-bold">
-              End Date:{' '}
-              {format(new Date(proposalInfo?.proposalEndDate), 'E MM/dd/yyyy')}
-            </p>
+        <div className="row g-0 border bg-white rounded overflow-hidden flex-md-row mb-4 shadow-sm h-md-250 position-relative">
+          <div className="col p-4 d-flex flex-column position-static">
+            <div className="d-inline-block  mb-2 ">
+              <h4>
+                <span className="badge bg-light text-dark font-weight-bold pl-5">
+                  Proposal #{proposalId}
+                </span>
+              </h4>
+            </div>
+            <h3 className="mb-0">{proposalInfo?.prompt || 'Unable to load'}</h3>
+            <div className="mb-1 text-muted">
+              {proposalInfo ? (
+                <div className="badge bg-light text-dark mt-2 p-2">
+                  <i className="bi bi-calendar2-check me-2"></i>
+                  {format(new Date(proposalInfo?.proposalDate), 'E MM/dd/yyyy')}
+                </div>
+              ) : null}
+            </div>
+            <p className="mb-auto mt-3">{proposalInfo?.description}</p>
+            <div className="row" style={{ paddingTop: '55px' }}>
+              <div className="col-6">{renderVoteData(votes, proposalInfo)}</div>
+
+              <div className="col-6">
+                <div className="d-flex justify-content-end">
+                  <p className="fw-bold">
+                    <span>End Date: </span>
+                    {format(
+                      new Date(proposalInfo?.proposalEndDate),
+                      'E MM/dd/yyyy'
+                    )}
+                  </p>
+                </div>
+                <div className="d-flex justify-content-end pt-2">
+                  <Link href={proposalInfo.documentProposalUri} passHref>
+                    <a
+                      rel="noopener noreferrer"
+                      target="_blank"
+                      className="btn btn-primary"
+                    >
+                      → View Detailed Proposal
+                    </a>
+                  </Link>
+                  &nbsp;&nbsp;
+                  <img
+                    src="/arweave.svg"
+                    height="32px"
+                    width="32px"
+                    alt="arweave"
+                  />
+                </div>
+              </div>
+            </div>
           </div>
-        ) : null}
-        <div className="col-4">{renderVoteData(votes, proposalInfo)}</div>
-      </div>
-    </>
-  );
+        </div>
+      </>
+    );
 
   const votingInActionView = isVotingActionInProgress ? (
     <div className="d-flex mt-3">
