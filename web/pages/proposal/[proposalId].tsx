@@ -472,16 +472,17 @@ const Home: NextPage = () => {
       return (
         <>
           <button
-            disabled={disableVoting}
+            disabled={true} // disableVoting
             onClick={() => {
-              if (disableVoting) {
+              if (true) {
+                // disableVoting
                 return;
               }
-              castVote(
-                selectedNFTMintAddress.map((mintId) => new PublicKey(mintId)),
-                +proposalId,
-                voteOption.value
-              );
+              // castVote(
+              //   selectedNFTMintAddress.map((mintId) => new PublicKey(mintId)),
+              //   +proposalId,
+              //   voteOption.value
+              // );
             }}
             className={`btn ${btnType}`}
           >
