@@ -41,7 +41,8 @@
         "next": "12.0.10",
         "react": "17.0.2",
         "react-countdown": "^2.3.2",
-        "react-dom": "17.0.2"
+        "react-dom": "17.0.2",
+        "sass": "^1.49.9"
     },
     "devDependencies": {
         "@types/node": "17.0.17",
