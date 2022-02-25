@@ -289,20 +289,20 @@ const Home: NextPage = () => {
         transaction.feePayer = publicKey;
         transactionArr.push(transaction);
       }
+      let errorMessage: any = "";
       if (signAllTransactions) {
         try {
           const txns = await signAllTransactions(transactionArr);
-          const sendAndConfrimPromises = txns.map(txn => sendAndConfirmRawTransaction(connection, txn.serialize(), { skipPreflight: true, maxRetries: 5, commitment: 'finalized' }));
-          const result = await Promise.all(sendAndConfrimPromises);
+
+          const sendPromises = txns.map(txn => sendTransaction(txn, connection, { skipPreflight: true, maxRetries: 5 }));
+          const result = await Promise.all(sendPromises);
+          const confirmPromises = result.map(tx => connection.confirmTransaction(tx, 'finalized'));
+          const confirmResult = await Promise.all(confirmPromises);
           console.log(result);
         }
         catch (err: any) {
           console.log(err);
-          setAlertState({
-            open: true,
-            message: 'Your vote failed :( Please try again!',
-            severity: 'error',
-          });
+          errorMessage = err;
           setVotingActionInProgress(false);
         }
       }
@@ -324,11 +324,7 @@ const Home: NextPage = () => {
             if (logs) {
               error = logs[logs.length - 3].split(' ').splice(2).join(' ');
             }
-            setAlertState({
-              open: true,
-              message: 'Your vote failed :( Please try again!',
-              severity: 'error',
-            });
+            errorMessage = e;
             setVotingActionInProgress(false);
           }
         }
@@ -336,11 +332,20 @@ const Home: NextPage = () => {
 
       setVotingActionInProgress(false);
       setSelectedNFTMintAddress([]);
-      setAlertState({
-        open: true,
-        message: 'Congratulations! Your vote was recorded.',
-        severity: 'success',
-      });
+      if (errorMessage !== "") {
+        setAlertState({
+          open: true,
+          message: 'Your vote failed :( Please try again!',
+          severity: 'error',
+        });
+      }
+      else {
+        setAlertState({
+          open: true,
+          message: 'Congratulations! Your vote was recorded.',
+          severity: 'success',
+        });
+      }
     },
     [connection, publicKey]
   );
