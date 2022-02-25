@@ -29,7 +29,7 @@ const App: FC<AppProps> = ({ Component, pageProps }) => {
   const network = WalletAdapterNetwork.Mainnet;
 
   // You can also provide a custom RPC endpoint
-  const endpoint = 'https://api.metaplex.solana.com/'; //useMemo(() => clusterApiUrl(network), [network]);
+  const endpoint = 'https://api.google.mainnet-beta.solana.com'; //useMemo(() => clusterApiUrl(network), [network]);
 
   // @solana/wallet-adapter-wallets includes all the adapters but supports tree shaking and lazy loading --
   // Only the wallets you configure here will be compiled into your application, and only the dependencies
