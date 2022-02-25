@@ -493,7 +493,12 @@ const Home: NextPage = () => {
                 </span>
               </h4>
             </div>
-            <h3 className="mb-0">{proposalInfo?.prompt || 'Unable to load'}</h3>
+            <h3 className="mb-0">
+              {proposalInfo?.prompt || 'Unable to load'}{' '}
+              {proposalId === 1
+                ? 'If this vote passes with 66% supporting, Votes 2-4 are all considered void.'
+                : ''}
+            </h3>
             <div className="mb-1 text-muted">
               {proposalInfo ? (
                 <div className="badge bg-light text-dark mt-2 p-2">
