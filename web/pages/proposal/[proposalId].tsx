@@ -435,40 +435,55 @@ const Home: NextPage = () => {
     </div>
   ) : (
     <>
-      <h2 className="text-center">
-        {proposalInfo?.prompt || 'Unable to load'}
-      </h2>
-      {proposalInfo ? (
-        <div className="badge bg-secondary mt-2 p-2">
-          <i className="bi bi-calendar2-check me-2"></i>
-          {format(new Date(proposalInfo?.proposalDate), 'E MM/dd/yyyy')}
+      <div className="mb-2">
+        <Link href="/" passHref>
+          <a className="text-dark ">
+          ← &nbsp;&nbsp;Go Back
+          </a>
+        </Link>
+      </div>
+      <div className="row g-0 border bg-white rounded overflow-hidden flex-md-row mb-4 shadow-sm h-md-250 position-relative">
+        <div className="col p-4 d-flex flex-column position-static">
+          <div className="d-inline-block  mb-2 ">
+            <h4>
+              <span className="badge bg-light text-dark font-weight-bold pl-5">
+                Proposal #{proposalId}
+              </span>
+            </h4>
+          </div>
+          <h3 className="mb-0">{proposalInfo?.prompt || 'Unable to load'}</h3>
+          <div className="mb-1 text-muted">
+            {proposalInfo ? (
+              <div className="badge bg-light text-dark mt-2 p-2">
+                <i className="bi bi-calendar2-check me-2"></i>
+                {format(new Date(proposalInfo?.proposalDate), 'E MM/dd/yyyy')}
+              </div>
+            ) : null}
+          </div>
+          <p className="mb-auto mt-3">{proposalInfo?.description}</p>
+          {proposalInfo?.documentProposalUri ? (
+            <div className="mt-5 d-flex justify-content-end">
+              <Link href={proposalInfo.documentProposalUri} passHref>
+                <a
+                  rel="noopener noreferrer"
+                  target="_blank"
+                  className="btn btn-primary"
+                >
+                  → View Detailed Proposal
+                </a>
+              </Link>
+              &nbsp;&nbsp;
+              <img
+                src="/arweave.svg"
+                height="32px"
+                width="32px"
+                alt="arweave"
+              />
+            </div>
+          ) : null}
         </div>
-      ) : null}
-      {proposal?.url ? (
-        <div className="">
-          <Link href={proposal?.url} passHref>
-            <a rel="noopener noreferrer" target="_blank">
-              → Proposal Source
-            </a>
-          </Link>
-        </div>
-      ) : null}
-      <p className="mt-3">{proposalInfo?.description}</p>
-      {proposalInfo?.documentProposalUri ? (
-        <p>
-          <Link href={proposalInfo.documentProposalUri} passHref>
-            <a
-              rel="noopener noreferrer"
-              target="_blank"
-              className="btn btn-primary"
-            >
-              → View Detailed Proposal
-            </a>
-          </Link>
-          &nbsp;&nbsp;
-          <img src="/arweave.svg" height="32px" width="32px" alt="arweave" />
-        </p>
-      ) : null}
+        <div className="col-auto d-none d-lg-block"></div>
+      </div>
       <div className="row justify-content-end">
         {proposalInfo ? (
           <div className="col-4">
@@ -526,13 +541,8 @@ const Home: NextPage = () => {
         <title>MonkeDAO x SMB | Vote Proposal {proposalId}</title>
         <meta name="description" content="MonkeDAO x SMB | Vote" />
       </Head>
-      <Link href="/" passHref>
-        <button type="button" className="btn btn-dark">
-          <i className="bi bi-arrow-left"></i> &nbsp;&nbsp;Go Back
-        </button>
-      </Link>
+
       <main className={styles.main}>
-        <h3 className="fw-normal text-center">Proposal {proposalId}</h3>
         {mainView}
         {nftsForCreatorInWallet}
         {(isConnected && (
