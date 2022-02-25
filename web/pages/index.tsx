@@ -264,11 +264,7 @@ const Home: NextPage = () => {
         <div className="row justify-content-start">
           <div className="col-5 mx-auto">
             {proposals
-              .sort(
-                (a: Proposal, b: Proposal) =>
-                  Date.parse(a.info.proposalDate) -
-                  Date.parse(b.info.proposalDate)
-              )
+              .sort((a: Proposal, b: Proposal) => Number(a.id) - Number(b.id))
               .map((proposal: any) => {
                 const filteredVotes = votes.filter(
                   (vote: any) => vote.id === proposal.proposalId
