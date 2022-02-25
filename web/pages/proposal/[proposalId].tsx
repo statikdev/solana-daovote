@@ -560,11 +560,10 @@ const Home: NextPage = () => {
 
   const votingOptionsView =
     proposalInfo?.voteOptions?.map((voteOption: VoteOption) => {
-      const btnType =
-        voteOption.value === 0 ? ' btn-danger' : ' btn-success me-2';
+      const btnType = ' btn-primary';
 
       return (
-        <>
+        <div key={voteOption.label} className="col-2">
           <button
             disabled={disableVoting}
             onClick={() => {
@@ -577,11 +576,11 @@ const Home: NextPage = () => {
                 voteOption.value
               );
             }}
-            className={`btn ${btnType}`}
+            className={`btn btn-lg ${btnType}`}
           >
             VOTE {voteOption.label.toUpperCase()}
           </button>
-        </>
+        </div>
       );
     }) || [];
 
@@ -589,7 +588,7 @@ const Home: NextPage = () => {
 
   if (publicKey && isVoteAllowed) {
     votingView = (
-      <div style={{ paddingTop: '15px' }}>
+      <div className="d-flex pt-10">
         {votingInActionView || votingOptionsView}
       </div>
     );
