@@ -5,9 +5,12 @@ export async function getMetadataForMint(
   connection: Connection,
   tokenAddress: PublicKey
 ) {
-  const nftPDA = await Metadata.getPDA(tokenAddress);
-  const metadata = await Metadata.load(connection, nftPDA);
-  return metadata;
+  try {
+    const nftPDA = await Metadata.getPDA(tokenAddress);
+    const metadata = await Metadata.load(connection, nftPDA);
+    return metadata;
+  } catch (e) {}
+  return null;
 }
 
 export async function getNFTDataForMint(
@@ -64,12 +67,12 @@ export async function getNFTsForWallet(
 
   return Promise.all(
     filteredMints.map(async (filteredMint) => {
-      const data = await retrieveStorageDataForUrl(filteredMint.data.data.uri);
+      const data = await retrieveStorageDataForUrl(filteredMint!.data.data.uri);
       return {
         chainData: filteredMint,
-        mint: filteredMint.data.mint,
+        mint: filteredMint!.data.mint,
         storageData: data,
-        tokenAddress: filteredMint.pubkey.toString(),
+        tokenAddress: filteredMint!.pubkey.toString(),
       };
     })
   );
