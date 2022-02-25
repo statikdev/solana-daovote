@@ -250,12 +250,6 @@ const Home: NextPage = () => {
 
   return (
     <div className={styles.container}>
-      <Head>
-        <title>Solana | DAO Vote</title>
-        <meta name="description" content="voting for DAOs on Solana" />
-        <link rel="icon" href="/favicon.ico" />
-      </Head>
-
       <main className={styles.main}>
         <div className="col-7 p-3 pb-md-4 mx-auto text-center">
           <p className="fs-5 text-muted">

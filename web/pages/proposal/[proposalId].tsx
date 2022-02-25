@@ -494,9 +494,8 @@ const Home: NextPage = () => {
   return (
     <div className={styles.container}>
       <Head>
-        <title>Solana | DAO Vote</title>
-        <meta name="description" content="voting for DAOs on Solana" />
-        <link rel="icon" href="/favicon.ico" />
+        <title>MonkeDAO x SMB | Vote Proposal {proposalId}</title>
+        <meta name="description" content="MonkeDAO x SMB | Vote" />
       </Head>
       <Link href="/" passHref>
         <button type="button" className="btn btn-dark">
