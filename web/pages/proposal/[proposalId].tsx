@@ -15,6 +15,7 @@ import { Snackbar } from '@material-ui/core';
 import Alert from '@material-ui/lab/Alert';
 import { format } from 'date-fns';
 import Countdown, { CountdownRendererFn } from 'react-countdown';
+import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
 
 import NFTCards from '../../components/NFTCards';
 import VoteHistory from '../../components/VoteHistory';
@@ -41,31 +42,36 @@ const MetaplexMetadataProgramAddressPubKey = new PublicKey(
 const NFT_CREATOR_ADDRESS = '9uBX3ASjxWvNBAD1xjbVaKA74mWGZys3RGSF7DdeDD3F';
 const CreatorAddressPublicKey = new PublicKey(NFT_CREATOR_ADDRESS);
 
-const renderer: CountdownRendererFn = ({
-  days,
-  hours,
-  minutes,
-  seconds,
-}: {
-  days: number;
-  hours: number;
-  minutes: number;
-  seconds: number;
-}) => {
-  if (days <= 0 && hours <= 0 && minutes <= 0 && seconds <= 0) {
-    return null;
-  }
+const renderer = (callback: () => void) => {
+  const fn: CountdownRendererFn = ({
+    days,
+    hours,
+    minutes,
+    seconds,
+  }: {
+    days: number;
+    hours: number;
+    minutes: number;
+    seconds: number;
+  }) => {
+    if (days <= 0 && hours <= 0 && minutes <= 0 && seconds <= 0) {
+      callback();
+      return null;
+    }
 
-  return (
-    <div className="mt-5 d-flex justify-content-center">
-      <h3>
-        <div className="alert alert-secondary" role="alert">
-          Voting Opens in{' '}
-          {hours + ' hours ' + minutes + ' minutes ' + seconds + ' seconds '}
-        </div>
-      </h3>
-    </div>
-  );
+    return (
+      <div className="mt-5 d-flex justify-content-center">
+        <h3>
+          <div className="alert alert-secondary" role="alert">
+            Voting Opens in{' '}
+            {hours + ' hours ' + minutes + ' minutes ' + seconds + ' seconds '}
+          </div>
+        </h3>
+      </div>
+    );
+  };
+
+  return fn;
 };
 
 const Home: NextPage = () => {
@@ -86,6 +92,7 @@ const Home: NextPage = () => {
   const [proposal, setProposal] = useState<Proposal | null>(null);
   const [isLoadingProposal, setIsLoadingProposal] = useState<Boolean>(false);
   const [isLoadingVotes, setIsLoadingVotes] = useState<Boolean>(false);
+  const [isVoteAllowed, setIsVoteAllowed] = useState<Boolean>(false);
   const [alertState, setAlertState] = useState<any>({
     open: false,
     message: '',
@@ -367,7 +374,7 @@ const Home: NextPage = () => {
   });
 
   const nftsForCreatorInWallet =
-    (publicKey && (
+    (publicKey && isVoteAllowed && (
       <>
         <NFTCards
           connection={connection}
@@ -395,7 +402,9 @@ const Home: NextPage = () => {
   }
 
   const disableVoting =
-    isVotingActionInProgress || selectedNFTMintAddress.length === 0;
+    isVotingActionInProgress ||
+    selectedNFTMintAddress.length === 0 ||
+    !isVoteAllowed;
 
   const renderVoteData = (votes: any, proposalInfo?: ProposalInfo) => {
     if (!proposalInfo) {
@@ -495,7 +504,9 @@ const Home: NextPage = () => {
             </div>
             <p className="mb-auto mt-3">{proposalInfo?.description}</p>
             <div className="row" style={{ paddingTop: '55px' }}>
-              <div className="col-lg-6">{renderVoteData(votes, proposalInfo)}</div>
+              <div className="col-lg-6">
+                {renderVoteData(votes, proposalInfo)}
+              </div>
 
               <div className="col-lg-6">
                 <div className="d-flex justify-content-end">
@@ -569,6 +580,24 @@ const Home: NextPage = () => {
       );
     }) || [];
 
+  let votingView = null;
+
+  if (publicKey && isVoteAllowed) {
+    votingView = (
+      <div style={{ paddingTop: '15px' }}>
+        {votingInActionView || votingOptionsView}
+      </div>
+    );
+  }
+
+  if (isVoteAllowed && !publicKey) {
+    votingView = (
+      <div className="">
+        <WalletMultiButton>Connect Wallet to Place Vote</WalletMultiButton>
+      </div>
+    );
+  }
+
   return (
     <div className={styles.container}>
       <Head>
@@ -579,18 +608,17 @@ const Home: NextPage = () => {
       <main className={styles.main}>
         {mainView}
         {nftsForCreatorInWallet}
-        {(isConnected && (
-          <div style={{ paddingTop: '15px' }}>
-            {votingInActionView || votingOptionsView}
-          </div>
-        )) ||
-          null}
-
+        {votingView}
         {isLoadingProposal ? (
           ''
         ) : (
           <div>
-            <Countdown renderer={renderer} date={proposalInfo?.proposalDate!} />
+            <Countdown
+              renderer={renderer(() => {
+                setIsVoteAllowed(true);
+              })}
+              date={proposalInfo?.proposalDate!}
+            />
           </div>
         )}
 
@@ -598,14 +626,14 @@ const Home: NextPage = () => {
           <div className="spinner-border text-dark mt-5" role="status">
             <span className="visually-hidden">Loading...</span>
           </div>
-        ) : (
+        ) : isVoteAllowed ? (
           <VoteHistory
             proposalInfo={proposalInfo}
             nftImages={nftImagesToShow}
             proposalId={proposalId}
             votes={votesForProposal}
           />
-        )}
+        ) : null}
       </main>
       <Snackbar
         open={alertState.open}
