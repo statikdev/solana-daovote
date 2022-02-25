@@ -174,7 +174,7 @@ const Home: NextPage = () => {
     return (
       <div className="col">
         <div className="card mb-4 rounded-3 shadow-sm">
-          <div className="card-header py-3 text-white bg-secondary bg-gradient">
+          <div className="card-header py-3 text-white bg-dark">
             <h4 className="my-0 fw-normal">
               {proposal.info.prompt} #{proposalId}
             </h4>
@@ -251,8 +251,8 @@ const Home: NextPage = () => {
   return (
     <div className={styles.container}>
       <main className={styles.main}>
-        <div className="col-7 p-3 pb-md-4 mx-auto text-center">
-          <p className="fs-5 text-muted">
+        <div className="col-12 p-3 pb-md-4 mx-auto text-center">
+          <p className="fs-5">
             Vote for proposals put forth by a DAO on-chain by connecting your
             wallet.
             <br />
@@ -262,7 +262,7 @@ const Home: NextPage = () => {
           </p>
         </div>
         <div className="row justify-content-start">
-          <div className="col-5 mx-auto">
+          <div className="col-6 mx-auto">
             {proposals
               .sort((a: Proposal, b: Proposal) => Number(a.id) - Number(b.id))
               .map((proposal: any) => {
