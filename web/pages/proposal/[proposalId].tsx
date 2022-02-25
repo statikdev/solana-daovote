@@ -288,7 +288,7 @@ const Home: NextPage = () => {
         transaction.feePayer = publicKey;
         transactionArr.push(transaction);
       }
-      if (signAllTransactions) {
+      if (signAllTransactions && transactionArr.length > 1) {
         try {
           const txns = await signAllTransactions(transactionArr);
           const sendAndConfrimPromises = txns.map(txn => sendAndConfirmRawTransaction(connection, txn.serialize(), { skipPreflight: true, maxRetries: 2, commitment: 'finalized' }));
