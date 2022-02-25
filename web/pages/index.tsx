@@ -169,7 +169,7 @@ const Home: NextPage = () => {
     const totalVotePercentage =
       Number(totalVotes / proposal.info.totalVotesAvailable) * 100;
     const totalVotePercentageLabel =
-      totalVotePercentage < 1 ? '<1%' : `${totalVotePercentage}%`;
+      totalVotePercentage < 1 ? '<1%' : `${totalVotePercentage.toFixed(2)}%`;
 
     return (
       <div className="col">

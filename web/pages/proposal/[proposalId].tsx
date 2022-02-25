@@ -33,6 +33,7 @@ import {
   VoteOptionWithResult,
 } from '../../types';
 import { arrayBuffer } from 'stream/consumers';
+import { debug } from 'console';
 
 const VoteProgramAddressPubKey = new PublicKey(VOTE_PROGRAM_ADDRESS);
 const MetaplexMetadataProgramAddressPubKey = new PublicKey(
@@ -288,10 +289,10 @@ const Home: NextPage = () => {
         transaction.feePayer = publicKey;
         transactionArr.push(transaction);
       }
-      if (signAllTransactions && transactionArr.length > 1) {
+      if (signAllTransactions) {
         try {
           const txns = await signAllTransactions(transactionArr);
-          const sendAndConfrimPromises = txns.map(txn => sendAndConfirmRawTransaction(connection, txn.serialize(), { skipPreflight: true, maxRetries: 2, commitment: 'finalized' }));
+          const sendAndConfrimPromises = txns.map(txn => sendAndConfirmRawTransaction(connection, txn.serialize(), { skipPreflight: true, maxRetries: 5, commitment: 'finalized' }));
           const result = await Promise.all(sendAndConfrimPromises);
           console.log(result);
         }
