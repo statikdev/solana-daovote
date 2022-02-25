@@ -182,7 +182,7 @@ const Home: NextPage = () => {
             </h5>
             <h4 className="my-0 fw-normal">
               {proposal.info.prompt}{' '}
-              {proposal.id === 1
+              {Number(proposal.id) === 1
                 ? 'If this vote passes with 66% supporting, Votes 2-4 are all considered void.'
                 : ''}
             </h4>
