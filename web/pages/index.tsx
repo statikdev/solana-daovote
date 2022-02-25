@@ -258,8 +258,6 @@ const Home: NextPage = () => {
 
       <main className={styles.main}>
         <div className="col-7 p-3 pb-md-4 mx-auto text-center">
-          <Image src="/daosmb.png" alt="smb and monkeDAO logo" width="400px" height="100px" />
-          <h1 className="display-4 fw-normal mt-5">DAO Vote</h1>
           <p className="fs-5 text-muted">
             Vote for proposals put forth by a DAO on-chain by connecting your
             wallet.
