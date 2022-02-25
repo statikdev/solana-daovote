@@ -168,11 +168,8 @@ const Home: NextPage = () => {
 
     const totalVotePercentage =
       Number(totalVotes / proposal.info.totalVotesAvailable) * 100;
-
-    let totalVotePercentageLabel = totalVotePercentage.toFixed(0);
-    if (totalVotePercentage < 1) {
-      totalVotePercentageLabel = '< 1';
-    }
+    const totalVotePercentageLabel =
+      totalVotePercentage < 1 ? '<1%' : `${totalVotePercentage}%`;
 
     return (
       <div className="col">
@@ -193,16 +190,20 @@ const Home: NextPage = () => {
                   <div
                     className="progress-bar"
                     role="progressbar"
+                    style={{
+                      width: `${totalVotePercentage}%`,
+                    }}
                     aria-valuenow={totalVotePercentage}
                     aria-valuemin={0}
                     aria-valuemax={100}
-                  >
-                    &nbsp;&nbsp;{totalVotePercentageLabel}%&nbsp;&nbsp;
-                  </div>
+                  ></div>
                 </div>
               </div>
-              <div className="col-sm-6 text-center">
-                <ul className="list-unstyled mt-3">
+              <div className="col-sm-6 d-flex">
+                <div className="w-50 d-flex justify-content-center align-items-center">
+                  <h2 className="">{totalVotePercentageLabel}</h2>
+                </div>
+                <ul className="list-unstyled mt-3 text-right">
                   {voteResultsCount.map(
                     (voteOptionWithResult: VoteOptionWithResult) => {
                       return (
