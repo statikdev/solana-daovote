@@ -494,9 +494,9 @@ const Home: NextPage = () => {
             </div>
             <p className="mb-auto mt-3">{proposalInfo?.description}</p>
             <div className="row" style={{ paddingTop: '55px' }}>
-              <div className="col-6">{renderVoteData(votes, proposalInfo)}</div>
+              <div className="col-lg-6">{renderVoteData(votes, proposalInfo)}</div>
 
-              <div className="col-6">
+              <div className="col-lg-6">
                 <div className="d-flex justify-content-end">
                   <p className="fw-bold">
                     <span>End Date: </span>

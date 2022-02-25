@@ -265,7 +265,7 @@ const Home: NextPage = () => {
           </p>
         </div>
         <div className="row justify-content-start">
-          <div className="col-6 mx-auto">
+          <div className="col-lg-6 mx-auto">
             {proposals
               .sort((a: Proposal, b: Proposal) => Number(a.id) - Number(b.id))
               .map((proposal: any) => {
