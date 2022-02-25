@@ -20,10 +20,9 @@ import Layout from '../components/Layout';
 import Head from 'next/head';
 
 // Use require instead of import since order matters
-require('bootstrap/dist/css/bootstrap.css');
 require('bootstrap-icons/font/bootstrap-icons.css');
 require('@solana/wallet-adapter-react-ui/styles.css');
-require('../styles/globals.css');
+require('../styles/globals.scss');
 
 const App: FC<AppProps> = ({ Component, pageProps }) => {
   // Can be set to 'devnet', 'testnet', or 'mainnet-beta'

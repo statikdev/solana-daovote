@@ -22,3 +22,7 @@ a {
   background-color: #f4be00 !important;
   color: black !important;
 }
+
+$primary: #f4be00;
+
+@import '../node_modules/bootstrap/scss/bootstrap';
