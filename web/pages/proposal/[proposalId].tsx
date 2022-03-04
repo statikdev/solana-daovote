@@ -233,7 +233,7 @@ const Home: NextPage = () => {
 
         let account_0 = {
           pubkey: publicKey,
-          isSigner: false,
+          isSigner: true,
           isWritable: true,
         },
           account_1 = {
