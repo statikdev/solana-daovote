@@ -293,15 +293,16 @@ const Home: NextPage = () => {
       if (signAllTransactions) {
         try {
           const txns = await signAllTransactions(transactionArr);
-
-          const sendPromises = txns.map(txn => sendTransaction(txn, connection, { skipPreflight: true, maxRetries: 5 }));
+          const sendPromises = txns.map(txn => connection.sendRawTransaction(txn.serialize(), { skipPreflight: true, maxRetries: 100 }));
           const result = await Promise.all(sendPromises);
+          
           const confirmPromises = result.map(tx => connection.confirmTransaction(tx, 'finalized'));
           const confirmResult = await Promise.all(confirmPromises);
+          console.log(confirmResult);
           console.log(result);
         }
         catch (err: any) {
-          console.log(err);
+          console.error(err);
           errorMessage = err;
           setVotingActionInProgress(false);
         }
@@ -320,7 +321,7 @@ const Home: NextPage = () => {
           } catch (e: any) {
             const logs = e?.logs;
             let error = 'Unknown error occurred.';
-            console.log(e);
+            console.error(e);
             if (logs) {
               error = logs[logs.length - 3].split(' ').splice(2).join(' ');
             }
