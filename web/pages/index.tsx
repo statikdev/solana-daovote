@@ -264,8 +264,7 @@ const Home: NextPage = () => {
             Vote for proposals put forth by a DAO on-chain by connecting your
             wallet.
             <br />
-            This is currently being used by MonkeDAO. Each SMB can vote once for
-            a proposal, if you buy an SMB that has already voted on a particular
+            Use your Balloonsville 2.0 NFT to vote on the future of the project, if you buy a Balloon that has already voted on a particular
             proposal, you CANNOT vote again using it.
           </p>
         </div>
