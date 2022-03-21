@@ -50,21 +50,21 @@ const App: FC<AppProps> = ({ Component, pageProps }) => {
   return (
     <>
       <Head>
-        <title>MonkeDAO x SMB | Vote</title>
-        <meta name="description" content="MonkeDAO x SMB | Vote" />
+        <title>Balloonsville | Vote</title>
+        <meta name="description" content="Balloonsville | Vote" />
         <link rel="icon" href="/favicon.ico" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </Head>
       <div className="container py-3">
-      <ConnectionProvider endpoint={endpoint}>
-        <WalletProvider wallets={wallets} autoConnect>
-          <WalletModalProvider>
-            <Layout>
-              <Component {...pageProps} />
-            </Layout>
-          </WalletModalProvider>
-        </WalletProvider>
-      </ConnectionProvider>
+        <ConnectionProvider endpoint={endpoint}>
+          <WalletProvider wallets={wallets} autoConnect>
+            <WalletModalProvider>
+              <Layout>
+                <Component {...pageProps} />
+              </Layout>
+            </WalletModalProvider>
+          </WalletProvider>
+        </ConnectionProvider>
       </div>
     </>
   );
