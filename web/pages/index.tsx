@@ -22,7 +22,7 @@ import {
 
 const VoteProgramAddressPubKey = new PublicKey(VOTE_PROGRAM_ADDRESS);
 
-const NFT_CREATOR_ADDRESS = '9uBX3ASjxWvNBAD1xjbVaKA74mWGZys3RGSF7DdeDD3F';
+const NFT_CREATOR_ADDRESS = 'E595MwLgTJapMQjcnsQ4bARCVF2wBMxhWb8YPciyHKaz';
 
 const Home: NextPage = () => {
   const { connection } = useConnection();
