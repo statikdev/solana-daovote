@@ -237,10 +237,12 @@ const Home: NextPage = () => {
                   'E MM/dd/yyyy'
                 )}{' '}
                 -{' '}
-                {format(
-                  new Date(proposal.info?.proposalEndDate),
-                  'E MM/dd/yyyy'
-                )}
+                {proposal.info?.proposalEndDate
+                  ? format(
+                      new Date(proposal.info?.proposalEndDate),
+                      'E MM/dd/yyyy'
+                    )
+                  : ''}
               </span>
 
               <Link href={`/proposal/${proposalId}`} passHref>
@@ -264,7 +266,8 @@ const Home: NextPage = () => {
             Vote for proposals put forth by a DAO on-chain by connecting your
             wallet.
             <br />
-            Use your Balloonsville 2.0 NFT to vote on the future of the project, if you buy a Balloon that has already voted on a particular
+            Use your Balloonsville 2.0 NFT to vote on the future of the project,
+            if you buy a Balloon that has already voted on a particular
             proposal, you CANNOT vote again using it.
           </p>
         </div>

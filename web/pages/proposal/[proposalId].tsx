@@ -524,10 +524,12 @@ const Home: NextPage = () => {
                 <div className="d-flex justify-content-end">
                   <p className="fw-bold">
                     <span>End Date: </span>
-                    {format(
-                      new Date(proposalInfo?.proposalEndDate),
-                      'E MM/dd/yyyy'
-                    )}
+                    {proposalInfo?.proposalEndDate
+                      ? format(
+                          new Date(proposalInfo?.proposalEndDate),
+                          'E MM/dd/yyyy'
+                        )
+                      : ''}
                   </p>
                 </div>
                 <div className="d-flex justify-content-end pt-2">
