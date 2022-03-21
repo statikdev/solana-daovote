@@ -180,12 +180,7 @@ const Home: NextPage = () => {
                 Proposal #{proposalId}
               </span>
             </h5>
-            <h4 className="my-0 fw-normal">
-              {proposal.info.prompt}{' '}
-              {Number(proposal.id) === 1
-                ? 'If this vote passes with 66% supporting, Votes 2-4 are all considered void.'
-                : ''}
-            </h4>
+            <h4 className="my-0 fw-normal">{proposal.info.prompt}</h4>
           </div>
           <div className="card-body">
             <div className="row">
