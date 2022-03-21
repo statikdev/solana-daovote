@@ -26,10 +26,10 @@ require('../styles/globals.scss');
 
 const App: FC<AppProps> = ({ Component, pageProps }) => {
   // Can be set to 'devnet', 'testnet', or 'mainnet-beta'
-  const network = WalletAdapterNetwork.Devnet;
+  const network = WalletAdapterNetwork.Mainnet;
 
   // You can also provide a custom RPC endpoint
-  const endpoint = 'https://psytrbhymqlkfrhudd.dev.genesysgo.net:8899/'; //useMemo(() => clusterApiUrl(network), [network]);
+  const endpoint = 'https://ssc-dao.genesysgo.net'; //useMemo(() => clusterApiUrl(network), [network]);
 
   // @solana/wallet-adapter-wallets includes all the adapters but supports tree shaking and lazy loading --
   // Only the wallets you configure here will be compiled into your application, and only the dependencies
