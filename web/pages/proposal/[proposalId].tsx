@@ -527,7 +527,7 @@ const Home: NextPage = () => {
                       : ''}
                   </p>
                 </div>
-                <div className="d-flex justify-content-end pt-2">
+                {/* <div className="d-flex justify-content-end pt-2">
                   <Link href={proposalInfo.documentProposalUri} passHref>
                     <a
                       rel="noopener noreferrer"
@@ -544,7 +544,7 @@ const Home: NextPage = () => {
                     width="32px"
                     alt="arweave"
                   />
-                </div>
+                </div> */}
               </div>
             </div>
           </div>
