@@ -1,6 +1,5 @@
 import type { NextPage } from 'next';
 import Head from 'next/head';
-import Image from 'next/image';
 import Link from 'next/link';
 
 import Base58 from 'bs58';
@@ -10,7 +9,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import { useConnection, useWallet } from '@solana/wallet-adapter-react';
 import { Transaction, TransactionInstruction } from '@solana/web3.js';
-import { PublicKey, sendAndConfirmRawTransaction } from '@solana/web3.js';
+import { PublicKey } from '@solana/web3.js';
 import { Snackbar } from '@material-ui/core';
 import Alert from '@material-ui/lab/Alert';
 import { format } from 'date-fns';
@@ -32,8 +31,6 @@ import {
   VoteOption,
   VoteOptionWithResult,
 } from '../../types';
-import { arrayBuffer } from 'stream/consumers';
-import { debug } from 'console';
 
 const VoteProgramAddressPubKey = new PublicKey(VOTE_PROGRAM_ADDRESS);
 const MetaplexMetadataProgramAddressPubKey = new PublicKey(
@@ -138,7 +135,7 @@ const Home: NextPage = () => {
           info: proposalInfo!,
           url,
         });
-      } catch (e) { }
+      } catch (e) {}
 
       setIsLoadingProposal(false);
     }
@@ -169,9 +166,9 @@ const Home: NextPage = () => {
           time = new Date(
             new BN(
               e.account.data[104] +
-              (e.account.data[105] << 8) +
-              (e.account.data[106] << 16) +
-              (e.account.data[107] << 24)
+                (e.account.data[105] << 8) +
+                (e.account.data[106] << 16) +
+                (e.account.data[107] << 24)
             ).toNumber() * 1000
           ),
           vote_option = new BN(e.account.data.slice(108), 10, 'le').toString();
@@ -232,10 +229,10 @@ const Home: NextPage = () => {
         const sys_key = new PublicKey('11111111111111111111111111111111');
 
         let account_0 = {
-          pubkey: publicKey,
-          isSigner: true,
-          isWritable: true,
-        },
+            pubkey: publicKey,
+            isSigner: true,
+            isWritable: true,
+          },
           account_1 = {
             pubkey: mintTokenId,
             isSigner: false,
@@ -289,25 +286,30 @@ const Home: NextPage = () => {
         transaction.feePayer = publicKey;
         transactionArr.push(transaction);
       }
-      let errorMessage: any = "";
+      let errorMessage: any = '';
       if (signAllTransactions) {
         try {
           const txns = await signAllTransactions(transactionArr);
-          const sendPromises = txns.map(txn => connection.sendRawTransaction(txn.serialize(), { skipPreflight: true, maxRetries: 100 }));
+          const sendPromises = txns.map((txn) =>
+            connection.sendRawTransaction(txn.serialize(), {
+              skipPreflight: true,
+              maxRetries: 100,
+            })
+          );
           const result = await Promise.all(sendPromises);
-          
-          const confirmPromises = result.map(tx => connection.confirmTransaction(tx, 'finalized'));
+
+          const confirmPromises = result.map((tx) =>
+            connection.confirmTransaction(tx, 'finalized')
+          );
           const confirmResult = await Promise.all(confirmPromises);
           console.log(confirmResult);
           console.log(result);
-        }
-        catch (err: any) {
+        } catch (err: any) {
           console.error(err);
           errorMessage = err;
           setVotingActionInProgress(false);
         }
-      }
-      else {
+      } else {
         for (let transaction of transactionArr) {
           try {
             const signature = await sendTransaction(transaction, connection, {
@@ -317,7 +319,6 @@ const Home: NextPage = () => {
               signature,
               'finalized'
             );
-
           } catch (e: any) {
             const logs = e?.logs;
             let error = 'Unknown error occurred.';
@@ -333,14 +334,13 @@ const Home: NextPage = () => {
 
       setVotingActionInProgress(false);
       setSelectedNFTMintAddress([]);
-      if (errorMessage !== "") {
+      if (errorMessage !== '') {
         setAlertState({
           open: true,
           message: 'Your vote failed :( Please try again!',
           severity: 'error',
         });
-      }
-      else {
+      } else {
         setAlertState({
           open: true,
           message: 'Congratulations! Your vote was recorded.',
