@@ -608,8 +608,8 @@ const Home: NextPage = () => {
   return (
     <div className={styles.container}>
       <Head>
-        <title>MonkeDAO x SMB | Vote Proposal {proposalId}</title>
-        <meta name="description" content="MonkeDAO x SMB | Vote" />
+        <title>Balloonsville | Vote Proposal {proposalId}</title>
+        <meta name="description" content="Balloonsville | Vote" />
       </Head>
 
       <main className={styles.main}>

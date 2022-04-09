@@ -29,7 +29,7 @@ const App: FC<AppProps> = ({ Component, pageProps }) => {
   const network = WalletAdapterNetwork.Mainnet;
 
   // You can also provide a custom RPC endpoint
-  const endpoint = 'https://ssc-dao.genesysgo.net'; //useMemo(() => clusterApiUrl(network), [network]);
+  const endpoint = 'https://sparkling-falling-wave.solana-mainnet.quiknode.pro/1e6d18e31964c5d7d01164756e1afebf6d38fe59/'; //useMemo(() => clusterApiUrl(network), [network]);
 
   // @solana/wallet-adapter-wallets includes all the adapters but supports tree shaking and lazy loading --
   // Only the wallets you configure here will be compiled into your application, and only the dependencies
