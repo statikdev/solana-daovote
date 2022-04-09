@@ -186,7 +186,7 @@ const Home: NextPage = () => {
             <div className="row">
               <div className="col-sm-6">
                 <h3 className="card-title">
-                  {totalVotes} / {proposal.info.totalVotesAvailable}
+                  {totalVotes} / 5000
                   <small className="text-muted fw-light"> votes</small>
                 </h3>
                 <div className="progress">

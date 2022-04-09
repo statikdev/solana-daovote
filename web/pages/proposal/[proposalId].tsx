@@ -432,7 +432,7 @@ const Home: NextPage = () => {
     );
 
     const totalVotePercentage =
-      Number(votes.length / proposalInfo.totalVotesAvailable) * 100;
+      Number(votes.length / 5000) * 100;
     const totalVotePercentageLabel =
       totalVotePercentage < 1 ? '<1%' : `${totalVotePercentage.toFixed(0)}%`;
 
@@ -440,7 +440,7 @@ const Home: NextPage = () => {
       <div className="row">
         <div className="col-sm-6">
           <h3 className="card-title">
-            {votes.length} / {proposalInfo.totalVotesAvailable}
+            {votes.length} / 5,000
             <small className="text-muted fw-light"> votes</small>
           </h3>
           <div className="progress">
