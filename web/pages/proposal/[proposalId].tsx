@@ -408,10 +408,10 @@ const Home: NextPage = () => {
     return <span>Invalid Proposal Id</span>;
   }
 
-  const disableVoting =
-    isVotingActionInProgress ||
+  const disableVoting = proposalId !== 1 &&
+    (isVotingActionInProgress ||
     selectedNFTMintAddress.length === 0 ||
-    !isVoteAllowed;
+    !isVoteAllowed);
 
   const renderVoteData = (votes: any, proposalInfo?: ProposalInfo) => {
     if (!proposalInfo) {
