@@ -22,7 +22,7 @@ import {
 
 const VoteProgramAddressPubKey = new PublicKey(VOTE_PROGRAM_ADDRESS);
 
-const NFT_CREATOR_ADDRESS = '9uBX3ASjxWvNBAD1xjbVaKA74mWGZys3RGSF7DdeDD3F';
+const NFT_CREATOR_ADDRESS = 'E595MwLgTJapMQjcnsQ4bARCVF2wBMxhWb8YPciyHKaz';
 
 const Home: NextPage = () => {
   const { connection } = useConnection();
@@ -180,18 +180,13 @@ const Home: NextPage = () => {
                 Proposal #{proposalId}
               </span>
             </h5>
-            <h4 className="my-0 fw-normal">
-              {proposal.info.prompt}{' '}
-              {Number(proposal.id) === 1
-                ? 'If this vote passes with 66% supporting, Votes 2-4 are all considered void.'
-                : ''}
-            </h4>
+            <h4 className="my-0 fw-normal">{proposal.info.prompt}</h4>
           </div>
           <div className="card-body">
             <div className="row">
               <div className="col-sm-6">
                 <h3 className="card-title">
-                  {totalVotes} / {proposal.info.totalVotesAvailable}
+                  {totalVotes} / 5000
                   <small className="text-muted fw-light"> votes</small>
                 </h3>
                 <div className="progress">
@@ -237,10 +232,12 @@ const Home: NextPage = () => {
                   'E MM/dd/yyyy'
                 )}{' '}
                 -{' '}
-                {format(
-                  new Date(proposal.info?.proposalEndDate),
-                  'E MM/dd/yyyy'
-                )}
+                {proposal.info?.proposalEndDate
+                  ? format(
+                      new Date(proposal.info?.proposalEndDate),
+                      'E MM/dd/yyyy'
+                    )
+                  : ''}
               </span>
 
               <Link href={`/proposal/${proposalId}`} passHref>
@@ -264,8 +261,8 @@ const Home: NextPage = () => {
             Vote for proposals put forth by a DAO on-chain by connecting your
             wallet.
             <br />
-            This is currently being used by MonkeDAO. Each SMB can vote once for
-            a proposal, if you buy an SMB that has already voted on a particular
+            Use your Balloonsville 2.0 NFT to vote on the future of the project,
+            if you buy a Balloon that has already voted on a particular
             proposal, you CANNOT vote again using it.
           </p>
         </div>

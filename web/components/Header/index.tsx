@@ -9,8 +9,8 @@ export default function Header() {
     <div className={styles.container}>
       <div className="d-flex w100 justify-content-center align-items-center pb-2">
         <Image
-          src="/daosmb.png"
-          alt="smb and monkeDAO logo"
+          src="/balloon.png"
+          alt="Balloonsville 2.0 logo"
           width="400px"
           height="90.5px"
         />

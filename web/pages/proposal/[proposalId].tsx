@@ -1,6 +1,5 @@
 import type { NextPage } from 'next';
 import Head from 'next/head';
-import Image from 'next/image';
 import Link from 'next/link';
 
 import Base58 from 'bs58';
@@ -10,7 +9,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import { useConnection, useWallet } from '@solana/wallet-adapter-react';
 import { Transaction, TransactionInstruction } from '@solana/web3.js';
-import { PublicKey, sendAndConfirmRawTransaction } from '@solana/web3.js';
+import { PublicKey } from '@solana/web3.js';
 import { Snackbar } from '@material-ui/core';
 import Alert from '@material-ui/lab/Alert';
 import { format } from 'date-fns';
@@ -32,15 +31,13 @@ import {
   VoteOption,
   VoteOptionWithResult,
 } from '../../types';
-import { arrayBuffer } from 'stream/consumers';
-import { debug } from 'console';
 
 const VoteProgramAddressPubKey = new PublicKey(VOTE_PROGRAM_ADDRESS);
 const MetaplexMetadataProgramAddressPubKey = new PublicKey(
   METAPLEX_METADATA_PROGRAM_ADDRESS
 );
 
-const NFT_CREATOR_ADDRESS = '9uBX3ASjxWvNBAD1xjbVaKA74mWGZys3RGSF7DdeDD3F';
+const NFT_CREATOR_ADDRESS = 'E595MwLgTJapMQjcnsQ4bARCVF2wBMxhWb8YPciyHKaz';
 const CreatorAddressPublicKey = new PublicKey(NFT_CREATOR_ADDRESS);
 
 const renderer = (callback: () => void) => {
@@ -138,7 +135,7 @@ const Home: NextPage = () => {
           info: proposalInfo!,
           url,
         });
-      } catch (e) { }
+      } catch (e) {}
 
       setIsLoadingProposal(false);
     }
@@ -169,9 +166,9 @@ const Home: NextPage = () => {
           time = new Date(
             new BN(
               e.account.data[104] +
-              (e.account.data[105] << 8) +
-              (e.account.data[106] << 16) +
-              (e.account.data[107] << 24)
+                (e.account.data[105] << 8) +
+                (e.account.data[106] << 16) +
+                (e.account.data[107] << 24)
             ).toNumber() * 1000
           ),
           vote_option = new BN(e.account.data.slice(108), 10, 'le').toString();
@@ -232,10 +229,10 @@ const Home: NextPage = () => {
         const sys_key = new PublicKey('11111111111111111111111111111111');
 
         let account_0 = {
-          pubkey: publicKey,
-          isSigner: true,
-          isWritable: true,
-        },
+            pubkey: publicKey,
+            isSigner: true,
+            isWritable: true,
+          },
           account_1 = {
             pubkey: mintTokenId,
             isSigner: false,
@@ -289,25 +286,30 @@ const Home: NextPage = () => {
         transaction.feePayer = publicKey;
         transactionArr.push(transaction);
       }
-      let errorMessage: any = "";
+      let errorMessage: any = '';
       if (signAllTransactions) {
         try {
           const txns = await signAllTransactions(transactionArr);
-          const sendPromises = txns.map(txn => connection.sendRawTransaction(txn.serialize(), { skipPreflight: true, maxRetries: 100 }));
+          const sendPromises = txns.map((txn) =>
+            connection.sendRawTransaction(txn.serialize(), {
+              skipPreflight: true,
+              maxRetries: 100,
+            })
+          );
           const result = await Promise.all(sendPromises);
-          
-          const confirmPromises = result.map(tx => connection.confirmTransaction(tx, 'finalized'));
+
+          const confirmPromises = result.map((tx) =>
+            connection.confirmTransaction(tx, 'finalized')
+          );
           const confirmResult = await Promise.all(confirmPromises);
           console.log(confirmResult);
           console.log(result);
-        }
-        catch (err: any) {
+        } catch (err: any) {
           console.error(err);
           errorMessage = err;
           setVotingActionInProgress(false);
         }
-      }
-      else {
+      } else {
         for (let transaction of transactionArr) {
           try {
             const signature = await sendTransaction(transaction, connection, {
@@ -317,7 +319,6 @@ const Home: NextPage = () => {
               signature,
               'finalized'
             );
-
           } catch (e: any) {
             const logs = e?.logs;
             let error = 'Unknown error occurred.';
@@ -333,14 +334,13 @@ const Home: NextPage = () => {
 
       setVotingActionInProgress(false);
       setSelectedNFTMintAddress([]);
-      if (errorMessage !== "") {
+      if (errorMessage !== '') {
         setAlertState({
           open: true,
           message: 'Your vote failed :( Please try again!',
           severity: 'error',
         });
-      }
-      else {
+      } else {
         setAlertState({
           open: true,
           message: 'Congratulations! Your vote was recorded.',
@@ -408,10 +408,10 @@ const Home: NextPage = () => {
     return <span>Invalid Proposal Id</span>;
   }
 
-  const disableVoting = true;
-    // isVotingActionInProgress ||
-    // selectedNFTMintAddress.length === 0 ||
-    // !isVoteAllowed;
+  const disableVoting = proposalId !== 1 &&
+    (isVotingActionInProgress ||
+    selectedNFTMintAddress.length === 0 ||
+    !isVoteAllowed);
 
   const renderVoteData = (votes: any, proposalInfo?: ProposalInfo) => {
     if (!proposalInfo) {
@@ -432,7 +432,7 @@ const Home: NextPage = () => {
     );
 
     const totalVotePercentage =
-      Number(votes.length / proposalInfo.totalVotesAvailable) * 100;
+      Number(votes.length / 5000) * 100;
     const totalVotePercentageLabel =
       totalVotePercentage < 1 ? '<1%' : `${totalVotePercentage.toFixed(0)}%`;
 
@@ -440,7 +440,7 @@ const Home: NextPage = () => {
       <div className="row">
         <div className="col-sm-6">
           <h3 className="card-title">
-            {votes.length} / {proposalInfo.totalVotesAvailable}
+            {votes.length} / 5,000
             <small className="text-muted fw-light"> votes</small>
           </h3>
           <div className="progress">
@@ -500,12 +500,7 @@ const Home: NextPage = () => {
                 </span>
               </h4>
             </div>
-            <h3 className="mb-0">
-              {proposalInfo?.prompt || 'Unable to load'}{' '}
-              {proposalId === 1
-                ? 'If this vote passes with 66% supporting, Votes 2-4 are all considered void.'
-                : ''}
-            </h3>
+            <h3 className="mb-0">{proposalInfo?.prompt || 'Unable to load'}</h3>
             <div className="mb-1 text-muted">
               {proposalInfo ? (
                 <div className="badge bg-light text-dark mt-2 p-2">
@@ -524,13 +519,15 @@ const Home: NextPage = () => {
                 <div className="d-flex justify-content-end">
                   <p className="fw-bold">
                     <span>End Date: </span>
-                    {format(
-                      new Date(proposalInfo?.proposalEndDate),
-                      'E MM/dd/yyyy'
-                    )}
+                    {proposalInfo?.proposalEndDate
+                      ? format(
+                          new Date(proposalInfo?.proposalEndDate),
+                          'E MM/dd/yyyy'
+                        )
+                      : ''}
                   </p>
                 </div>
-                <div className="d-flex justify-content-end pt-2">
+                {/* <div className="d-flex justify-content-end pt-2">
                   <Link href={proposalInfo.documentProposalUri} passHref>
                     <a
                       rel="noopener noreferrer"
@@ -547,7 +544,7 @@ const Home: NextPage = () => {
                     width="32px"
                     alt="arweave"
                   />
-                </div>
+                </div> */}
               </div>
             </div>
           </div>
@@ -611,8 +608,8 @@ const Home: NextPage = () => {
   return (
     <div className={styles.container}>
       <Head>
-        <title>MonkeDAO x SMB | Vote Proposal {proposalId}</title>
-        <meta name="description" content="MonkeDAO x SMB | Vote" />
+        <title>Balloonsville | Vote Proposal {proposalId}</title>
+        <meta name="description" content="Balloonsville | Vote" />
       </Head>
 
       <main className={styles.main}>

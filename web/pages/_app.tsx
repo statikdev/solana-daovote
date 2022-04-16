@@ -29,7 +29,7 @@ const App: FC<AppProps> = ({ Component, pageProps }) => {
   const network = WalletAdapterNetwork.Mainnet;
 
   // You can also provide a custom RPC endpoint
-  const endpoint = 'https://twilight-young-forest.solana-mainnet.quiknode.pro/54d70411d028158bdff6f66991476e66296d3cbe/'; //useMemo(() => clusterApiUrl(network), [network]);
+  const endpoint = 'https://sparkling-falling-wave.solana-mainnet.quiknode.pro/1e6d18e31964c5d7d01164756e1afebf6d38fe59/'; //useMemo(() => clusterApiUrl(network), [network]);
 
   // @solana/wallet-adapter-wallets includes all the adapters but supports tree shaking and lazy loading --
   // Only the wallets you configure here will be compiled into your application, and only the dependencies
@@ -50,21 +50,21 @@ const App: FC<AppProps> = ({ Component, pageProps }) => {
   return (
     <>
       <Head>
-        <title>MonkeDAO x SMB | Vote</title>
-        <meta name="description" content="MonkeDAO x SMB | Vote" />
+        <title>Balloonsville | Vote</title>
+        <meta name="description" content="Balloonsville | Vote" />
         <link rel="icon" href="/favicon.ico" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </Head>
       <div className="container py-3">
-      <ConnectionProvider endpoint={endpoint}>
-        <WalletProvider wallets={wallets} autoConnect>
-          <WalletModalProvider>
-            <Layout>
-              <Component {...pageProps} />
-            </Layout>
-          </WalletModalProvider>
-        </WalletProvider>
-      </ConnectionProvider>
+        <ConnectionProvider endpoint={endpoint}>
+          <WalletProvider wallets={wallets} autoConnect>
+            <WalletModalProvider>
+              <Layout>
+                <Component {...pageProps} />
+              </Layout>
+            </WalletModalProvider>
+          </WalletProvider>
+        </ConnectionProvider>
       </div>
     </>
   );

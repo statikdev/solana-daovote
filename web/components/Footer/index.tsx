@@ -20,15 +20,6 @@ export default function Footer() {
         web
       </a>
       ]
-      [
-      <a
-        href="https://docs.google.com/forms/d/e/1FAIpQLSfrDO-K8bSsSs36-tP9mv9kTr8wj08WGU6eL_h6c_-a9liKDg/viewform"
-        target="_blank"
-        rel="noopener noreferrer"
-      >
-        contact support
-      </a>
-      ]
     </footer>
   );
 }
